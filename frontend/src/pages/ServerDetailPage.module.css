@@ -1,0 +1,343 @@
+.serverDetail {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.headerContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.backButton {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.serverInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.serverName {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+.serverAddress {
+  font-size: 1rem;
+  color: var(--accent-primary);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.serverDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.addFilesButton {
+  flex-shrink: 0;
+  margin-left: 2rem;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--bg-tertiary);
+  border-top: 3px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.error {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.error h2 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.error p {
+  margin-bottom: 2rem;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.breadcrumbItem {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  font-size: 0.875rem;
+}
+
+.breadcrumbItem:hover {
+  background: var(--bg-tertiary);
+  color: var(--accent-light);
+}
+
+.breadcrumbItem.active {
+  color: var(--text-primary);
+  cursor: default;
+}
+
+.breadcrumbItem.active:hover {
+  background: none;
+  color: var(--text-primary);
+}
+
+.breadcrumbSeparator {
+  color: var(--text-muted);
+  margin: 0 0.25rem;
+}
+
+.filesSection {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-tertiary);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fileCount {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.fileItem:last-child {
+  border-bottom: none;
+}
+
+.fileItem:hover {
+  background: var(--bg-tertiary);
+}
+
+.fileIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  font-size: 1.25rem;
+}
+
+.folderIcon {
+  color: var(--accent-primary);
+}
+
+.fileItemIcon {
+  color: var(--text-muted);
+}
+
+.fileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.fileMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.fileDate {
+  color: var(--text-muted);
+}
+
+.fileSize {
+  color: var(--text-secondary);
+}
+
+.metaSeparator {
+  color: var(--border);
+}
+
+.sharedIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--accent-primary);
+}
+
+.shareIcon {
+  font-size: 0.75rem;
+}
+
+.sharedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius);
+  color: var(--accent-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.emptyDescription {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .headerContent {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .addFilesButton {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+  
+  .serverName {
+    font-size: 1.5rem;
+  }
+  
+  .breadcrumb {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .fileItem {
+    padding: 0.875rem 1rem;
+  }
+  
+  .fileMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .sharedBadge {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

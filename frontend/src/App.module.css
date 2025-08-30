@@ -1,0 +1,12 @@
+.app {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.toast {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--accent-primary) !important;
+  box-shadow: 0 10px 15px -3px var(--shadow-lg) !important;
+}
