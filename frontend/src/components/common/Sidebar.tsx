@@ -17,7 +17,7 @@ const Sidebar: React.FC = () => {
     { path: '/dashboard', label: 'Dashboard', icon: FiHome },
     { path: '/servers', label: 'Servers', icon: FiServer },
     { path: '/shared-files', label: 'Shared Files', icon: FiFolder },
-    ...(user?.role === 'superadmin' ? [
+    ...(user?.role === '2' ? [
       { path: '/users', label: 'User Management', icon: FiUsers }
     ] : []),
   ];
@@ -25,8 +25,8 @@ const Sidebar: React.FC = () => {
   return (
     <div className={styles.sidebar}>
       <div className={styles.header}>
-        <h1 className={styles.title}>MC Server Manager</h1>
-        <p className={styles.subtitle}>File Management System</p>
+        <h1 className={styles.title}>C  F  M</h1>
+        <p className={styles.subtitle}>Controlled File Management</p>
       </div>
       
       <nav className={styles.nav}>

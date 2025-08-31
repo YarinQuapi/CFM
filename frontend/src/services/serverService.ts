@@ -1,48 +1,29 @@
 import { Server } from '../types';
 
+// const API_BASE_URL = process.env.API_URL;
+// const API_KEY = 
+
 export const serverService = {
   async getServers(): Promise<Server[]> {
-    // Mock data - replace with real API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return [
-      {
-        id: '1',
-        name: 'Main Survival Server',
-        host: '192.168.1.100',
-        port: 25565,
-        status: 'online',
-        description: 'Primary survival server for the community',
-        createdAt: '2024-01-15T10:30:00Z',
-        filesPath: '/home/minecraft/survival',
-        playerCount: 12,
-        maxPlayers: 50
-      },
-      {
-        id: '2',
-        name: 'Creative Build Server',
-        host: '192.168.1.101',
-        port: 25566,
-        status: 'offline',
-        description: 'Creative server for building projects',
-        createdAt: '2024-01-20T14:20:00Z',
-        filesPath: '/home/minecraft/creative',
-        playerCount: 0,
-        maxPlayers: 30
-      },
-      {
-        id: '3',
-        name: 'Modded Adventure',
-        host: '192.168.1.102',
-        port: 25567,
-        status: 'maintenance',
-        description: 'Modded server with adventure packs',
-        createdAt: '2024-02-01T09:15:00Z',
-        filesPath: '/home/minecraft/modded',
-        playerCount: 0,
-        maxPlayers: 20
-      }
-    ];
+    try {
+    const response = await fetch('http://localhost:3000/api/servers');
+    if (!response.ok) {
+
+      const text = await response.text();
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+    const data = await response.json();
+
+    console.log(data);
+
+    return data.servers;
+
+  } catch (error) {
+
+    console.error('Failed to load servers:', error);
+    alert(error.message);
+    return [];
+  }
   },
 
   async getServer(id: string): Promise<Server> {
@@ -53,8 +34,22 @@ export const serverService = {
   },
 
   async createServer(server: Omit<Server, 'id' | 'createdAt'>): Promise<Server> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    // await new Promise(resolve => setTimeout(resolve, 500));
+
+    console.log('Creating server:', server);
+
+  
+    const response = await fetch('http://localhost:3000/api/servers', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(server)
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
     return {
       ...server,
       id: Date.now().toString(),

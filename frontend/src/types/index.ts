@@ -2,7 +2,7 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  role: 'viewer' | 'editor' | 'superadmin';
+  role: '0' | '1' | '2';
   createdAt: string;
   lastLogin?: string;
   isActive: boolean;
@@ -13,12 +13,9 @@ export interface Server {
   name: string;
   host: string;
   port: number;
-  status: 'online' | 'offline' | 'maintenance';
+  status: '0' | '1' | '2';
   description?: string;
   createdAt: string;
-  filesPath: string;
-  playerCount?: number;
-  maxPlayers?: number;
 }
 
 export interface FileItem {

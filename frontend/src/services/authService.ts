@@ -13,7 +13,7 @@ export const authService = {
         id: '1',
         username: 'admin',
         email: 'admin@example.com',
-        role: 'superadmin',
+        role: '2',
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
         isActive: true

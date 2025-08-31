@@ -139,6 +139,7 @@ body {
   color: var(--text-primary);
   font-size: 0.875rem;
   transition: var(--transition);
+  resize: none;
 }
 
 .input-base::placeholder {

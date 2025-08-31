@@ -72,18 +72,18 @@ const UserManagementPage: React.FC = () => {
 
   const getRoleColor = (role: User['role']) => {
     switch (role) {
-      case 'superadmin': return styles.roleSuperadmin;
-      case 'editor': return styles.roleEditor;
-      case 'viewer': return styles.roleViewer;
+      case '0': return styles.roleSuperadmin;
+      case '1': return styles.roleEditor;
+      case '2': return styles.roleViewer;
       default: return styles.roleViewer;
     }
   };
 
   const getRoleIcon = (role: User['role']) => {
     switch (role) {
-      case 'superadmin': return <FiShield />;
-      case 'editor': return <FiEdit2 />;
-      case 'viewer': return <FiUser />;
+      case '0': return <FiShield />;
+      case '1': return <FiEdit2 />;
+      case '2': return <FiUser />;
       default: return <FiUser />;
     }
   };
@@ -166,7 +166,7 @@ const UserManagementPage: React.FC = () => {
                   <button
                     onClick={() => handleEditUser(user)}
                     className={`btn-base btn-secondary ${styles.actionButton}`}
-                    disabled={user.id === currentUser?.id && user.role === 'superadmin'}
+                    disabled={user.id === currentUser?.id && user.role === '2'}
                   >
                     <FiEdit2 />
                   </button>

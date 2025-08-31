@@ -17,9 +17,7 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
     host: '',
     port: 25565,
     description: '',
-    status: 'offline' as Server['status'],
-    filesPath: '',
-    maxPlayers: 20
+    status: '0' as Server['status']
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -32,8 +30,6 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
         port: server.port,
         description: server.description || '',
         status: server.status,
-        filesPath: server.filesPath,
-        maxPlayers: server.maxPlayers || 20
       });
     }
   }, [server]);
@@ -51,14 +47,6 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
 
     if (!formData.port || formData.port < 1 || formData.port > 65535) {
       newErrors.port = 'Port must be between 1 and 65535';
-    }
-
-    if (!formData.filesPath.trim()) {
-      newErrors.filesPath = 'Files path is required';
-    }
-
-    if (!formData.maxPlayers || formData.maxPlayers < 1) {
-      newErrors.maxPlayers = 'Max players must be at least 1';
     }
 
     setErrors(newErrors);
@@ -166,23 +154,6 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
             </div>
 
             <div className={styles.formGroup}>
-              <label className="form-label" htmlFor="maxPlayers">
-                Max Players *
-              </label>
-              <input
-                id="maxPlayers"
-                type="number"
-                className={`input-base ${errors.maxPlayers ? styles.inputError : ''}`}
-                placeholder="20"
-                min="1"
-                value={formData.maxPlayers}
-                onChange={(e) => handleInputChange('maxPlayers', parseInt(e.target.value) || '')}
-                disabled={loading}
-              />
-              {errors.maxPlayers && <span className={styles.errorMessage}>{errors.maxPlayers}</span>}
-            </div>
-
-            <div className={styles.formGroup}>
               <label className="form-label" htmlFor="status">
                 Status
               </label>
@@ -193,26 +164,10 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
                 onChange={(e) => handleInputChange('status', e.target.value as Server['status'])}
                 disabled={loading}
               >
-                <option value="offline">Offline</option>
-                <option value="online">Online</option>
-                <option value="maintenance">Maintenance</option>
+                <option value="0">Offline</option>
+                <option value="1">Online</option>
+                <option value="2">Maintenance</option>
               </select>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className="form-label" htmlFor="filesPath">
-                Files Path *
-              </label>
-              <input
-                id="filesPath"
-                type="text"
-                className={`input-base ${errors.filesPath ? styles.inputError : ''}`}
-                placeholder="/home/minecraft/server"
-                value={formData.filesPath}
-                onChange={(e) => handleInputChange('filesPath', e.target.value)}
-                disabled={loading}
-              />
-              {errors.filesPath && <span className={styles.errorMessage}>{errors.filesPath}</span>}
             </div>
           </div>
 

@@ -17,8 +17,8 @@ const ServersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
 
-  const canEdit = user?.role !== 'viewer';
-  const canDelete = user?.role === 'superadmin';
+  const canEdit = user?.role !== '0';
+  const canDelete = user?.role === '2';
 
   useEffect(() => {
     loadServers();
@@ -60,12 +60,11 @@ const ServersPage: React.FC = () => {
       setDeletingServer(null);
     }
   };
-
   const getStatusColor = (status: Server['status']) => {
     switch (status) {
-      case 'online': return styles.statusOnline;
-      case 'offline': return styles.statusOffline;
-      case 'maintenance': return styles.statusMaintenance;
+      case '0': return styles.statusOnline;
+      case '1': return styles.statusOffline;
+      case '2': return styles.statusMaintenance;
       default: return styles.statusOffline;
     }
   };
@@ -127,7 +126,7 @@ const ServersPage: React.FC = () => {
                   </div>
                   <div className={styles.serverDetails}>
                     <h3 className={styles.serverName}>{server.name}</h3>
-                    <p className={styles.serverAddress}>{server.host}:{server.port}</p>
+                    <p className={styles.serverAddress}>{server.host}</p>
                   </div>
                 </div>
                 <span className={`${styles.statusBadge} ${getStatusColor(server.status)}`}>
@@ -140,12 +139,12 @@ const ServersPage: React.FC = () => {
               )}
               
               <div className={styles.serverStats}>
-                {server.playerCount !== undefined && (
+                {/* {server.playerCount !== undefined && (
                   <div className={styles.playerCount}>
                     <FiUsers className={styles.statIcon} />
                     <span>{server.playerCount}/{server.maxPlayers} players</span>
                   </div>
-                )}
+                )} */}
                 <div className={styles.serverAge}>
                   Created {formatDate(server.createdAt)}
                 </div>
