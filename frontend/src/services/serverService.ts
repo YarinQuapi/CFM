@@ -3,6 +3,11 @@ import { Server } from '../types';
 // const API_BASE_URL = process.env.API_URL;
 // const API_KEY = 
 
+interface PostServerRequest {
+  type: string;
+  server: Server;
+}
+
 export const serverService = {
   async getServers(): Promise<Server[]> {
     try {
@@ -38,11 +43,15 @@ export const serverService = {
 
     console.log('Creating server:', server);
 
+    const request = {
+      type: 'create',
+      server
+    } as PostServerRequest;
   
     const response = await fetch('http://localhost:3000/api/servers', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(server)
+      body: JSON.stringify(request)
     });
 
     if (!response.ok) {
@@ -57,14 +66,45 @@ export const serverService = {
     };
   },
 
-  async updateServer(id: string, updates: Partial<Server>): Promise<Server> {
-    await new Promise(resolve => setTimeout(resolve, 500));
+  async updateServer(id: string, updates: Server): Promise<Server> {
+    
+    const request = {
+      type: 'update',
+      server: updates
+    } as PostServerRequest;
+  
+    const response = await fetch('http://localhost:3000/api/servers', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
     
     const server = await this.getServer(id);
     return { ...server, ...updates };
   },
 
-  async deleteServer(id: string): Promise<void> {
+  async deleteServer(server: Server): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 500));
+
+    const request = {
+      type: 'delete',
+      server
+    } as PostServerRequest;
+  
+    const response = await fetch('http://localhost:3000/api/servers', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
   }
 };

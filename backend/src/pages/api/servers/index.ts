@@ -28,25 +28,52 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(500).json({ error: 'Server error', detail: error.message });
     }
   } else if (req.method === 'POST') {
-    const { name, host, port, status, description } = req.body;
-
-    console.log(req.body);
+    const { type, server } = req.body;
+    const { name, host, port, status, description } = server;
 
     try {
-      const uuid = randomUUID();
+      switch (type) {
+        case "create":
+          const uuid = randomUUID();
 
-      console.log("Inserting server with ID:", uuid);
+          const [result] = await pool.query(
+            'INSERT INTO servers (id, name, host, status, description, createdAt) VALUES (?, ?, ?, ?, ?, NOW())',
+          [uuid, name, host + ":" + port, status, description]);
 
-      console.group("server insert")
-      console.log(uuid, name, host, status, description);
-      console.groupEnd();
+          res.status(201).json({ ok: true });
+          break;
 
-      const [result] = await pool.query(
-        'INSERT INTO servers (id, name, host, status, description, createdAt) VALUES (?, ?, ?, ?, ?, NOW())',
-        [uuid, name, host + ":" + port, status, description]
-      );
+        case "update":
+          if (!server.id) {
+            res.status(400).json({ error: 'Missing server ID for update' });
+            return;
+          }
 
-      res.status(201).json({ ok: true });
+          const [updateResult] = await pool.query(
+            'UPDATE servers SET name = ?, host = ?, status = ?, description = ? WHERE id = ?',
+            [name, host + ":" + port, status, description, server.id]
+          );
+
+          res.status(200).json({ ok: true });
+          break;
+
+        case "delete":
+          if (!server.id) {
+            res.status(400).json({ error: 'Missing server ID for delete' });
+            return;
+          }
+          const [deleteResult] = await pool.query(
+            'DELETE FROM servers WHERE id = ?',
+            [server.id]
+          );
+
+          res.status(200).json({ ok: true });
+          break;
+          
+        default:
+          res.status(400).json({ error: 'Invalid type' });
+      }
+
     } catch (error) {
       res.status(500).json({ error: 'DB insert failed', detail: error.message });
     }
