@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiUser, FiShield } from 'react-icons/fi';
-import { User } from '../types';
-import { userService } from '../services/userService';
-import UserModal from '../components/users/UserModal';
-import ConfirmDialog from '../components/common/ConfirmDialog';
-import { useAuthStore } from '../stores/authStore';
-import toast from 'react-hot-toast';
-import styles from './UserManagementPage.module.css';
+import React, { useState, useEffect } from "react";
+import { FiPlus, FiEdit2, FiTrash2, FiUser, FiShield } from "react-icons/fi";
+import { User } from "../types";
+import { userService } from "../services/userService";
+import UserModal from "../components/users/UserModal";
+import ConfirmDialog from "../components/common/ConfirmDialog";
+import { useAuthStore } from "../stores/authStore";
+import toast from "react-hot-toast";
+import styles from "./UserManagementPage.module.css";
 
 const UserManagementPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,8 +25,8 @@ const UserManagementPage: React.FC = () => {
       const data = await userService.getUsers();
       setUsers(data);
     } catch (error) {
-      toast.error('Failed to load users');
-      console.error('Failed to load users:', error);
+      toast.error("Failed to load users");
+      console.error("Failed to load users:", error);
     } finally {
       setLoading(false);
     }
@@ -44,14 +44,14 @@ const UserManagementPage: React.FC = () => {
 
   const handleDeleteUser = async () => {
     if (!deletingUser) return;
-    
+
     try {
       await userService.deleteUser(deletingUser.id);
-      setUsers(users.filter(u => u.id !== deletingUser.id));
-      toast.success('User deleted successfully');
+      setUsers(users.filter((u) => u.id !== deletingUser.id));
+      toast.success("User deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete user');
-      console.error('Failed to delete user:', error);
+      toast.error("Failed to delete user");
+      console.error("Failed to delete user:", error);
     } finally {
       setDeletingUser(null);
     }
@@ -60,31 +60,43 @@ const UserManagementPage: React.FC = () => {
   const handleToggleUserStatus = async (user: User) => {
     try {
       const updatedUser = await userService.updateUser(user.id, {
-        isActive: !user.isActive
+        isActive: !user.isActive,
       });
-      setUsers(users.map(u => u.id === user.id ? updatedUser : u));
-      toast.success(`User ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully`);
+      setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
+      toast.success(
+        `User ${
+          updatedUser.isActive ? "activated" : "deactivated"
+        } successfully`
+      );
     } catch (error) {
-      toast.error('Failed to update user status');
-      console.error('Failed to update user status:', error);
+      toast.error("Failed to update user status");
+      console.error("Failed to update user status:", error);
     }
   };
 
-  const getRoleColor = (role: User['role']) => {
+  const getRoleColor = (role: User["role"]) => {
     switch (role) {
-      case '0': return styles.roleSuperadmin;
-      case '1': return styles.roleEditor;
-      case '2': return styles.roleViewer;
-      default: return styles.roleViewer;
+      case "2":
+        return styles.roleSuperadmin;
+      case "1":
+        return styles.roleEditor;
+      case "0":
+        return styles.roleViewer;
+      default:
+        return styles.roleViewer;
     }
   };
 
-  const getRoleIcon = (role: User['role']) => {
+  const getRoleIcon = (role: User["role"]) => {
     switch (role) {
-      case '0': return <FiShield />;
-      case '1': return <FiEdit2 />;
-      case '2': return <FiUser />;
-      default: return <FiUser />;
+      case "2":
+        return <FiShield />;
+      case "1":
+        return <FiEdit2 />;
+      case "0":
+        return <FiUser />;
+      default:
+        return <FiUser />;
     }
   };
 
@@ -142,7 +154,9 @@ const UserManagementPage: React.FC = () => {
                 </div>
 
                 <div className={styles.roleCell}>
-                  <div className={`${styles.roleBadge} ${getRoleColor(user.role)}`}>
+                  <div
+                    className={`${styles.roleBadge} ${getRoleColor(user.role)}`}
+                  >
                     {getRoleIcon(user.role)}
                     <span>{user.role}</span>
                   </div>
@@ -151,22 +165,24 @@ const UserManagementPage: React.FC = () => {
                 <div className={styles.statusCell}>
                   <button
                     onClick={() => handleToggleUserStatus(user)}
-                    className={`${styles.statusToggle} ${user.isActive ? styles.active : styles.inactive}`}
+                    className={`${styles.statusToggle} ${
+                      user.isActive ? styles.active : styles.inactive
+                    }`}
                     disabled={user.id === currentUser?.id}
                   >
-                    {user.isActive ? 'Active' : 'Inactive'}
+                    {user.isActive ? "Active" : "Inactive"}
                   </button>
                 </div>
 
                 <div className={styles.loginCell}>
-                  {user.lastLogin ? formatDate(user.lastLogin) : 'Never'}
+                  {user.lastLogin ? formatDate(user.lastLogin) : "Never"}
                 </div>
 
                 <div className={styles.actionsCell}>
                   <button
                     onClick={() => handleEditUser(user)}
                     className={`btn-base btn-secondary ${styles.actionButton}`}
-                    disabled={user.id === currentUser?.id && user.role === '2'}
+                    disabled={user.id === currentUser?.id && user.role === "2"}
                   >
                     <FiEdit2 />
                   </button>
@@ -192,10 +208,7 @@ const UserManagementPage: React.FC = () => {
             <p className={styles.emptyDescription}>
               Create your first user to get started.
             </p>
-            <button
-              onClick={handleAddUser}
-              className="btn-base btn-primary"
-            >
+            <button onClick={handleAddUser} className="btn-base btn-primary">
               <FiPlus />
               Create First User
             </button>
@@ -227,10 +240,10 @@ const UserManagementPage: React.FC = () => {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 

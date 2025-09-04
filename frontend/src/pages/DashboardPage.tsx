@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FiServer, FiFolder, FiUsers, FiActivity } from 'react-icons/fi';
-import { DashboardStats } from '../types';
-import { useAuthStore } from '../stores/authStore';
-import styles from './DashboardPage.module.css';
+import React, { useState, useEffect } from "react";
+import { FiServer, FiFolder, FiUsers, FiActivity } from "react-icons/fi";
+import { DashboardStats } from "../types";
+import { useAuthStore } from "../stores/authStore";
+import styles from "./DashboardPage.module.css";
+import { serverService } from "../services/serverService";
 
 const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -14,40 +15,39 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   const loadDashboardData = async () => {
-    // Mock data - replace with real API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    const servers = await serverService.getServers();
+
     setStats({
-      totalServers: 3,
-      onlineServers: 1,
+      totalServers: servers.length,
+      onlineServers: servers.filter((s) => s.status === "1").length,
       totalFiles: 24,
       totalUsers: 5,
       recentActivity: [
         {
-          id: '1',
-          type: 'file_uploaded',
-          description: 'Uploaded server-icon.png to shared files',
-          timestamp: '2024-02-16T10:30:00Z',
-          userId: '1',
-          username: 'admin'
+          id: "1",
+          type: "file_uploaded",
+          description: "Uploaded server-icon.png to shared files",
+          timestamp: "2024-02-16T10:30:00Z",
+          userId: "1",
+          username: "admin",
         },
         {
-          id: '2',
-          type: 'server_updated',
-          description: 'Updated Main Survival Server configuration',
-          timestamp: '2024-02-16T09:15:00Z',
-          userId: '1',
-          username: 'admin'
+          id: "2",
+          type: "server_updated",
+          description: "Updated Main Survival Server configuration",
+          timestamp: "2024-02-16T09:15:00Z",
+          userId: "1",
+          username: "admin",
         },
         {
-          id: '3',
-          type: 'file_shared',
-          description: 'Shared common-plugins with Creative Build Server',
-          timestamp: '2024-02-15T16:45:00Z',
-          userId: '2',
-          username: 'moderator'
-        }
-      ]
+          id: "3",
+          type: "file_shared",
+          description: "Shared common-plugins with Creative Build Server",
+          timestamp: "2024-02-15T16:45:00Z",
+          userId: "2",
+          username: "moderator",
+        },
+      ],
     });
     setLoading(false);
   };
@@ -128,9 +128,13 @@ const DashboardPage: React.FC = () => {
                   {getActivityIcon(activity.type)}
                 </div>
                 <div className={styles.activityContent}>
-                  <p className={styles.activityDescription}>{activity.description}</p>
+                  <p className={styles.activityDescription}>
+                    {activity.description}
+                  </p>
                   <div className={styles.activityMeta}>
-                    <span className={styles.activityUser}>{activity.username}</span>
+                    <span className={styles.activityUser}>
+                      {activity.username}
+                    </span>
                     <span className={styles.activityTime}>
                       {formatTimeAgo(activity.timestamp)}
                     </span>
@@ -152,7 +156,7 @@ const DashboardPage: React.FC = () => {
               <FiFolder className={styles.actionIcon} />
               <span>Shared Files</span>
             </a>
-            {user?.role === 'superadmin' && (
+            {user?.role === "2" && (
               <a href="/users" className={styles.actionCard}>
                 <FiUsers className={styles.actionIcon} />
                 <span>User Management</span>
@@ -167,13 +171,13 @@ const DashboardPage: React.FC = () => {
 
 const getActivityIcon = (type: string) => {
   switch (type) {
-    case 'server_created':
-    case 'server_updated':
+    case "server_created":
+    case "server_updated":
       return <FiServer />;
-    case 'file_uploaded':
-    case 'file_shared':
+    case "file_uploaded":
+    case "file_shared":
       return <FiFolder />;
-    case 'user_created':
+    case "user_created":
       return <FiUsers />;
     default:
       return <FiActivity />;
@@ -185,7 +189,7 @@ const formatTimeAgo = (timestamp: string) => {
   const time = new Date(timestamp);
   const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 60) return "Just now";
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
   return `${Math.floor(diffInSeconds / 86400)}d ago`;

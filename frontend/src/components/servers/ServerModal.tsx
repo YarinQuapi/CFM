@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FiX, FiServer } from 'react-icons/fi';
-import { Server } from '../../types';
-import { serverService } from '../../services/serverService';
-import toast from 'react-hot-toast';
-import styles from './ServerModal.module.css';
+import React, { useState, useEffect } from "react";
+import { FiX, FiServer } from "react-icons/fi";
+import { Server } from "../../types";
+import { serverService } from "../../services/serverService";
+import toast from "react-hot-toast";
+import styles from "./ServerModal.module.css";
 
 interface ServerModalProps {
   server?: Server | null;
@@ -11,42 +11,48 @@ interface ServerModalProps {
   onSave: () => void;
 }
 
-const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) => {
+const ServerModal: React.FC<ServerModalProps> = ({
+  server,
+  onClose,
+  onSave,
+}) => {
   const [formData, setFormData] = useState({
-    name: '',
-    host: '',
+    id: "",
+    name: "",
+    host: "",
     port: 25565,
-    description: '',
-    status: '0' as Server['status']
+    description: "",
+    status: "0" as Server["status"],
   });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (server) {
       setFormData({
+        id: server.id,
         name: server.name,
         host: server.host,
         port: server.port,
-        description: server.description || '',
+        description: server.description || "",
         status: server.status,
       });
     }
   }, [server]);
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Server name is required';
+      newErrors.name = "Server name is required";
     }
 
     if (!formData.host.trim()) {
-      newErrors.host = 'Host address is required';
+      newErrors.host = "Host address is required";
     }
 
     if (!formData.port || formData.port < 1 || formData.port > 65535) {
-      newErrors.port = 'Port must be between 1 and 65535';
+      newErrors.port = "Port must be between 1 and 65535";
     }
 
     setErrors(newErrors);
@@ -55,23 +61,23 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    
+
     try {
       if (server) {
-        await serverService.updateServer(server.id, formData);
-        toast.success('Server updated successfully');
+        await serverService.updateServer(formData);
+        toast.success("Server updated successfully");
       } else {
         await serverService.createServer(formData);
-        toast.success('Server created successfully');
+        toast.success("Server created successfully");
       }
       onSave();
       onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save server');
+      toast.error(error.message || "Failed to save server");
     } finally {
       setLoading(false);
     }
@@ -80,7 +86,7 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
   const handleInputChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
     if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
+      setErrors({ ...errors, [field]: "" });
     }
   };
 
@@ -93,7 +99,7 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
               <FiServer />
             </div>
             <h2 className={styles.title}>
-              {server ? 'Edit Server' : 'Add New Server'}
+              {server ? "Edit Server" : "Add New Server"}
             </h2>
           </div>
           <button onClick={onClose} className={styles.closeButton}>
@@ -110,13 +116,15 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
               <input
                 id="name"
                 type="text"
-                className={`input-base ${errors.name ? styles.inputError : ''}`}
+                className={`input-base ${errors.name ? styles.inputError : ""}`}
                 placeholder="Enter server name"
                 value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 disabled={loading}
               />
-              {errors.name && <span className={styles.errorMessage}>{errors.name}</span>}
+              {errors.name && (
+                <span className={styles.errorMessage}>{errors.name}</span>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -126,13 +134,15 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
               <input
                 id="host"
                 type="text"
-                className={`input-base ${errors.host ? styles.inputError : ''}`}
+                className={`input-base ${errors.host ? styles.inputError : ""}`}
                 placeholder="192.168.1.100 or mc.example.com"
                 value={formData.host}
-                onChange={(e) => handleInputChange('host', e.target.value)}
+                onChange={(e) => handleInputChange("host", e.target.value)}
                 disabled={loading}
               />
-              {errors.host && <span className={styles.errorMessage}>{errors.host}</span>}
+              {errors.host && (
+                <span className={styles.errorMessage}>{errors.host}</span>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -142,15 +152,27 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
               <input
                 id="port"
                 type="number"
-                className={`input-base ${errors.port ? styles.inputError : ''}`}
-                placeholder="25565"
+                className={`input-base ${errors.port ? styles.inputError : ""}`}
+                placeholder={
+                  formData && formData.port
+                    ? formData.port?.toString()
+                    : "25565"
+                }
                 min="1"
                 max="65535"
-                value={formData.port}
-                onChange={(e) => handleInputChange('port', parseInt(e.target.value) || '')}
+                value={
+                  formData && formData.port
+                    ? formData?.port.toString()
+                    : "25565"
+                }
+                onChange={(e) =>
+                  handleInputChange("port", parseInt(e.target.value) || "")
+                }
                 disabled={loading}
               />
-              {errors.port && <span className={styles.errorMessage}>{errors.port}</span>}
+              {errors.port && (
+                <span className={styles.errorMessage}>{errors.port}</span>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -161,7 +183,12 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
                 id="status"
                 className="input-base"
                 value={formData.status}
-                onChange={(e) => handleInputChange('status', e.target.value as Server['status'])}
+                onChange={(e) =>
+                  handleInputChange(
+                    "status",
+                    e.target.value as Server["status"]
+                  )
+                }
                 disabled={loading}
               >
                 <option value="0">Offline</option>
@@ -181,7 +208,7 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
               placeholder="Enter server description (optional)"
               rows={3}
               value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              onChange={(e) => handleInputChange("description", e.target.value)}
               disabled={loading}
             />
           </div>
@@ -197,7 +224,9 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
             </button>
             <button
               type="submit"
-              className={`btn-base btn-primary ${loading ? styles.loading : ''}`}
+              className={`btn-base btn-primary ${
+                loading ? styles.loading : ""
+              }`}
               disabled={loading}
             >
               {loading ? (
@@ -205,8 +234,10 @@ const ServerModal: React.FC<ServerModalProps> = ({ server, onClose, onSave }) =>
                   <div className={styles.spinner}></div>
                   Saving...
                 </>
+              ) : server ? (
+                "Update Server"
               ) : (
-                server ? 'Update Server' : 'Create Server'
+                "Create Server"
               )}
             </button>
           </div>

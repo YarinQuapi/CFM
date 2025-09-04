@@ -19,6 +19,14 @@ export const serverService = {
     }
     const data = await response.json();
 
+    data.servers.forEach((server: Server) => {
+      if (server.host.includes(':')) {
+        const [host, port] = server.host.split(':');
+        server.host = host;
+        server.port = parseInt(port);
+      }
+    });
+
     console.log(data);
 
     return data.servers;
@@ -66,11 +74,11 @@ export const serverService = {
     };
   },
 
-  async updateServer(id: string, updates: Server): Promise<Server> {
+  async updateServer(server: Server): Promise<Server> {
     
     const request = {
       type: 'update',
-      server: updates
+      server
     } as PostServerRequest;
   
     const response = await fetch('http://localhost:3000/api/servers', {
@@ -84,8 +92,8 @@ export const serverService = {
       throw new Error(`API error ${response.status}: ${text}`);
     }
     
-    const server = await this.getServer(id);
-    return { ...server, ...updates };
+    const server2 = await this.getServer(server.id);
+    return { ...server, ...server2 };
   },
 
   async deleteServer(server: Server): Promise<void> {

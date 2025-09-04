@@ -15,7 +15,7 @@ export interface Server {
   port: number;
   status: '0' | '1' | '2';
   description?: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface FileItem {
