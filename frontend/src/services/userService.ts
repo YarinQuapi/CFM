@@ -1,48 +1,26 @@
+import fetchFromAPI from '../lib/api';
 import { User } from '../types';
 
 
 export const userService = {
   async getUsers(): Promise<User[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return [
-      {
-        id: '1',
-        username: 'admin',
-        email: 'admin@example.com',
-        role: '2',
-        createdAt: '2024-01-01T00:00:00Z',
-        lastLogin: '2024-02-16T10:30:00Z',
-        isActive: true
-      },
-      {
-        id: '2',
-        username: 'moderator',
-        email: 'mod@example.com',
-        role: '1',
-        createdAt: '2024-01-15T00:00:00Z',
-        lastLogin: '2024-02-15T16:20:00Z',
-        isActive: true
-      },
-      {
-        id: '3',
-        username: 'viewer_user',
-        email: 'viewer@example.com',
-        role: '0',
-        createdAt: '2024-02-01T00:00:00Z',
-        lastLogin: '2024-02-10T14:15:00Z',
-        isActive: false
-      }
-    ];
+    const users = await fetchFromAPI('api/users', 'GET')
+
+    console.log(users);
+
+    return users.users;
   },
 
-  async createUser(user: Omit<User, 'id' | 'createdAt' | 'lastLogin'>): Promise<User> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+  async createUser(user: User): Promise<User> {
+    const response = await fetchFromAPI('api/users', 'POST', JSON.stringify({type: 'create', user}));
+
+    if (!response.ok) {
+      throw new Error('Failed to create user');
+    }
+
+
     return {
-      ...user,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString()
+      ...response.user
     };
   },
 

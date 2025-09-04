@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FiX, FiUser, FiMail, FiShield } from 'react-icons/fi';
-import { User } from '../../types';
-import { userService } from '../../services/userService';
-import toast from 'react-hot-toast';
-import styles from './UserModal.module.css';
+import React, { useState, useEffect } from "react";
+import { FiX, FiUser, FiMail, FiShield } from "react-icons/fi";
+import { User } from "../../types";
+import { userService } from "../../services/userService";
+import toast from "react-hot-toast";
+import styles from "./UserModal.module.css";
 
 interface UserModalProps {
   user?: User | null;
@@ -13,52 +13,52 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    role: 'viewer' as User['role'],
+    username: "",
+    email: "",
+    role: "viewer" as User["role"],
     isActive: true,
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (user) {
       setFormData({
-        username: user.username,
+        username: user.display_name,
         email: user.email,
         role: user.role,
         isActive: user.isActive,
-        password: '',
-        confirmPassword: ''
+        password: "",
+        confirmPassword: "",
       });
     }
   }, [user]);
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = "Username is required";
     } else if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
+      newErrors.username = "Username must be at least 3 characters";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!user && !formData.password) {
-      newErrors.password = 'Password is required for new users';
+      newErrors.password = "Password is required for new users";
     } else if (formData.password && formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     if (formData.password && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -67,33 +67,33 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    
+
     try {
       const userData = {
         username: formData.username,
         email: formData.email,
         role: formData.role,
-        isActive: formData.isActive
+        isActive: formData.isActive,
       };
 
       if (user) {
         await userService.updateUser(user.id, userData);
-        toast.success('User updated successfully');
+        toast.success("User updated successfully");
       } else {
         await userService.createUser({
           ...userData,
-          password: formData.password
+          password: formData.password,
         } as any);
-        toast.success('User created successfully');
+        toast.success("User created successfully");
       }
       onSave();
       onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save user');
+      toast.error(error.message || "Failed to save user");
     } finally {
       setLoading(false);
     }
@@ -102,14 +102,26 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
   const handleInputChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
     if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
+      setErrors({ ...errors, [field]: "" });
     }
   };
 
   const roleOptions = [
-    { value: 'viewer', label: 'Viewer', description: 'Can view servers and files' },
-    { value: 'editor', label: 'Editor', description: 'Can manage servers and files' },
-    { value: 'superadmin', label: 'Super Admin', description: 'Full system access' }
+    {
+      value: "viewer",
+      label: "Viewer",
+      description: "Can view servers and files",
+    },
+    {
+      value: "editor",
+      label: "Editor",
+      description: "Can manage servers and files",
+    },
+    {
+      value: "superadmin",
+      label: "Super Admin",
+      description: "Full system access",
+    },
   ];
 
   return (
@@ -121,7 +133,7 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
               <FiUser />
             </div>
             <h2 className={styles.title}>
-              {user ? 'Edit User' : 'Add New User'}
+              {user ? "Edit User" : "Add New User"}
             </h2>
           </div>
           <button onClick={onClose} className={styles.closeButton}>
@@ -139,13 +151,17 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
               <input
                 id="username"
                 type="text"
-                className={`input-base ${errors.username ? styles.inputError : ''}`}
+                className={`input-base ${
+                  errors.username ? styles.inputError : ""
+                }`}
                 placeholder="Enter username"
                 value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
+                onChange={(e) => handleInputChange("username", e.target.value)}
                 disabled={loading}
               />
-              {errors.username && <span className={styles.errorMessage}>{errors.username}</span>}
+              {errors.username && (
+                <span className={styles.errorMessage}>{errors.username}</span>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -156,13 +172,17 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
               <input
                 id="email"
                 type="email"
-                className={`input-base ${errors.email ? styles.inputError : ''}`}
+                className={`input-base ${
+                  errors.email ? styles.inputError : ""
+                }`}
                 placeholder="Enter email address"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                onChange={(e) => handleInputChange("email", e.target.value)}
                 disabled={loading}
               />
-              {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
+              {errors.email && (
+                <span className={styles.errorMessage}>{errors.email}</span>
+              )}
             </div>
           </div>
 
@@ -175,8 +195,12 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
               {roleOptions.map((option) => (
                 <div
                   key={option.value}
-                  className={`${styles.roleOption} ${formData.role === option.value ? styles.selected : ''}`}
-                  onClick={() => handleInputChange('role', option.value as User['role'])}
+                  className={`${styles.roleOption} ${
+                    formData.role === option.value ? styles.selected : ""
+                  }`}
+                  onClick={() =>
+                    handleInputChange("role", option.value as User["role"])
+                  }
                 >
                   <div className={styles.roleHeader}>
                     <span className={styles.roleLabel}>{option.label}</span>
@@ -186,7 +210,12 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
                         name="role"
                         value={option.value}
                         checked={formData.role === option.value}
-                        onChange={() => handleInputChange('role', option.value as User['role'])}
+                        onChange={() =>
+                          handleInputChange(
+                            "role",
+                            option.value as User["role"]
+                          )
+                        }
                         disabled={loading}
                       />
                     </div>
@@ -206,13 +235,19 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
                 <input
                   id="password"
                   type="password"
-                  className={`input-base ${errors.password ? styles.inputError : ''}`}
+                  className={`input-base ${
+                    errors.password ? styles.inputError : ""
+                  }`}
                   placeholder="Enter password"
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   disabled={loading}
                 />
-                {errors.password && <span className={styles.errorMessage}>{errors.password}</span>}
+                {errors.password && (
+                  <span className={styles.errorMessage}>{errors.password}</span>
+                )}
               </div>
 
               <div className={styles.formGroup}>
@@ -222,13 +257,21 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
                 <input
                   id="confirmPassword"
                   type="password"
-                  className={`input-base ${errors.confirmPassword ? styles.inputError : ''}`}
+                  className={`input-base ${
+                    errors.confirmPassword ? styles.inputError : ""
+                  }`}
                   placeholder="Confirm password"
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("confirmPassword", e.target.value)
+                  }
                   disabled={loading}
                 />
-                {errors.confirmPassword && <span className={styles.errorMessage}>{errors.confirmPassword}</span>}
+                {errors.confirmPassword && (
+                  <span className={styles.errorMessage}>
+                    {errors.confirmPassword}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -239,7 +282,9 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                  onChange={(e) =>
+                    handleInputChange("isActive", e.target.checked)
+                  }
                   disabled={loading}
                   className={styles.checkbox}
                 />
@@ -262,7 +307,9 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
             </button>
             <button
               type="submit"
-              className={`btn-base btn-primary ${loading ? styles.loading : ''}`}
+              className={`btn-base btn-primary ${
+                loading ? styles.loading : ""
+              }`}
               disabled={loading}
             >
               {loading ? (
@@ -270,8 +317,10 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
                   <div className={styles.spinner}></div>
                   Saving...
                 </>
+              ) : user ? (
+                "Update User"
               ) : (
-                user ? 'Update User' : 'Create User'
+                "Create User"
               )}
             </button>
           </div>

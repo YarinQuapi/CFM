@@ -145,10 +145,10 @@ const UserManagementPage: React.FC = () => {
               <div key={user.id} className={styles.tableRow}>
                 <div className={styles.userCell}>
                   <div className={styles.userAvatar}>
-                    {user.username.charAt(0).toUpperCase()}
+                    {user.display_name.charAt(0).toUpperCase()}
                   </div>
                   <div className={styles.userInfo}>
-                    <h3 className={styles.username}>{user.username}</h3>
+                    <h3 className={styles.username}>{user.display_name}</h3>
                     <p className={styles.userEmail}>{user.email}</p>
                   </div>
                 </div>
@@ -227,7 +227,7 @@ const UserManagementPage: React.FC = () => {
       {deletingUser && (
         <ConfirmDialog
           title="Delete User"
-          message={`Are you sure you want to delete "${deletingUser.username}"? This action cannot be undone.`}
+          message={`Are you sure you want to delete "${deletingUser.display_name}"? This action cannot be undone.`}
           confirmText="Delete"
           onConfirm={handleDeleteUser}
           onCancel={() => setDeletingUser(null)}

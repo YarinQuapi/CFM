@@ -27,13 +27,9 @@ export const serverService = {
       }
     });
 
-    console.log(data);
-
     return data.servers;
 
   } catch (error) {
-
-    console.error('Failed to load servers:', error);
     alert(error.message);
     return [];
   }
@@ -47,8 +43,6 @@ export const serverService = {
   },
 
   async createServer(server: Omit<Server, 'id' | 'createdAt'>): Promise<Server> {
-    // await new Promise(resolve => setTimeout(resolve, 500));
-
     console.log('Creating server:', server);
 
     const request = {
@@ -97,8 +91,6 @@ export const serverService = {
   },
 
   async deleteServer(server: Server): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     const request = {
       type: 'delete',
       server

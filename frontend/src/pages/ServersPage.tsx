@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { FiPlus, FiServer, FiEdit2, FiTrash2, FiEye, FiUsers } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
-import { Server } from '../types';
-import { serverService } from '../services/serverService';
-import ServerModal from '../components/servers/ServerModal';
-import ConfirmDialog from '../components/common/ConfirmDialog';
-import { useAuthStore } from '../stores/authStore';
-import toast from 'react-hot-toast';
-import styles from './ServersPage.module.css';
+import React, { useState, useEffect } from "react";
+import { FiPlus, FiServer, FiEdit2, FiTrash2, FiEye } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { Server } from "../types";
+import { serverService } from "../services/serverService";
+import ServerModal from "../components/servers/ServerModal";
+import ConfirmDialog from "../components/common/ConfirmDialog";
+import { useAuthStore } from "../stores/authStore";
+import toast from "react-hot-toast";
+import styles from "./ServersPage.module.css";
 
 const ServersPage: React.FC = () => {
   const [servers, setServers] = useState<Server[]>([]);
@@ -17,8 +17,8 @@ const ServersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
 
-  const canEdit = user?.role !== '0';
-  const canDelete = user?.role === '2';
+  const canEdit = user?.role !== "0";
+  const canDelete = user?.role === "2";
 
   useEffect(() => {
     loadServers();
@@ -29,8 +29,8 @@ const ServersPage: React.FC = () => {
       const data = await serverService.getServers();
       setServers(data);
     } catch (error) {
-      toast.error('Failed to load servers');
-      console.error('Failed to load servers:', error);
+      toast.error("Failed to load servers");
+      console.error("Failed to load servers:", error);
     } finally {
       setLoading(false);
     }
@@ -48,24 +48,28 @@ const ServersPage: React.FC = () => {
 
   const handleDeleteServer = async () => {
     if (!deletingServer) return;
-    
+
     try {
-      await serverService.deleteServer(deletingServer.id);
-      setServers(servers.filter(s => s.id !== deletingServer.id));
-      toast.success('Server deleted successfully');
+      await serverService.deleteServer(deletingServer);
+      setServers(servers.filter((s) => s.id !== deletingServer.id));
+      toast.success("Server deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete server');
-      console.error('Failed to delete server:', error);
+      toast.error("Failed to delete server");
+      console.error("Failed to delete server:", error);
     } finally {
       setDeletingServer(null);
     }
   };
-  const getStatusColor = (status: Server['status']) => {
+  const getStatusColor = (status: Server["status"]) => {
     switch (status) {
-      case '0': return styles.statusOnline;
-      case '1': return styles.statusOffline;
-      case '2': return styles.statusMaintenance;
-      default: return styles.statusOffline;
+      case "0":
+        return styles.statusOnline;
+      case "1":
+        return styles.statusOffline;
+      case "2":
+        return styles.statusMaintenance;
+      default:
+        return styles.statusOffline;
     }
   };
 
@@ -83,7 +87,9 @@ const ServersPage: React.FC = () => {
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Server Management</h1>
-          <p className={styles.subtitle}>Manage your Minecraft server infrastructure</p>
+          <p className={styles.subtitle}>
+            Manage your Minecraft server infrastructure
+          </p>
         </div>
         {canEdit && (
           <button
@@ -106,10 +112,7 @@ const ServersPage: React.FC = () => {
             Get started by creating your first Minecraft server
           </p>
           {canEdit && (
-            <button
-              onClick={handleAddServer}
-              className="btn-base btn-primary"
-            >
+            <button onClick={handleAddServer} className="btn-base btn-primary">
               <FiPlus />
               Create Your First Server
             </button>
@@ -129,15 +132,19 @@ const ServersPage: React.FC = () => {
                     <p className={styles.serverAddress}>{server.host}</p>
                   </div>
                 </div>
-                <span className={`${styles.statusBadge} ${getStatusColor(server.status)}`}>
+                <span
+                  className={`${styles.statusBadge} ${getStatusColor(
+                    server.status
+                  )}`}
+                >
                   {server.status}
                 </span>
               </div>
-              
+
               {server.description && (
                 <p className={styles.serverDescription}>{server.description}</p>
               )}
-              
+
               <div className={styles.serverStats}>
                 {/* {server.playerCount !== undefined && (
                   <div className={styles.playerCount}>
@@ -146,10 +153,10 @@ const ServersPage: React.FC = () => {
                   </div>
                 )} */}
                 <div className={styles.serverAge}>
-                  Created {formatDate(server.createdAt)}
+                  Created {formatDate(server.createdAt || "")}
                 </div>
               </div>
-              
+
               <div className={styles.serverActions}>
                 <Link
                   to={`/servers/${server.id}`}
@@ -158,7 +165,7 @@ const ServersPage: React.FC = () => {
                   <FiEye />
                   View Files
                 </Link>
-                
+
                 {canEdit && (
                   <button
                     onClick={() => handleEditServer(server)}
@@ -168,7 +175,7 @@ const ServersPage: React.FC = () => {
                     Edit
                   </button>
                 )}
-                
+
                 {canDelete && (
                   <button
                     onClick={() => setDeletingServer(server)}
@@ -208,10 +215,10 @@ const ServersPage: React.FC = () => {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 

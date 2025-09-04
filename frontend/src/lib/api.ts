@@ -1,20 +1,20 @@
-const API_BASE_URL = process.env.API_URL;
-const API_KEY = process.env.API_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const fetchFromAPI = async (endpoint: string) => {
+export default async function fetchFromAPI (endpoint: string, method: string, headers?: string) : Promise<any> {
     const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
-        method: 'GET',
-        credentials: 'include',
+        method,
         headers: {
             'Content-Type': 'application/json',
-            'X-Auth-Token': API_KEY ?? '',
-        }
+        },
+        body: headers
     });
 
     if (!response.ok) {
         const text = await response.text();
         throw new Error(`API error ${response.status}: ${text}`);
     }
+
+    console.log('API response:', response);
 
     return response.json();
 }

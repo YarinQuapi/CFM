@@ -67,7 +67,7 @@ const DashboardPage: React.FC = () => {
     <div className={styles.dashboard}>
       <div className={styles.header}>
         <h1 className={styles.title}>Dashboard</h1>
-        <p className={styles.subtitle}>Welcome back, {user?.username}!</p>
+        <p className={styles.subtitle}>Welcome back, {user?.display_name}!</p>
       </div>
 
       <div className={styles.statsGrid}>
