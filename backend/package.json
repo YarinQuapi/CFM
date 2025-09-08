@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/micro-cors": "^0.1.5",
     "@types/node": "^20",
     "@types/react": "^19",

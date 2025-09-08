@@ -1,8 +1,11 @@
 export interface User {
   id: string;
-  username: string;
+  first_name: string;
+  last_name: string;
+  display_name: string;
   email: string;
   role: '0' | '1' | '2';
+  token: string;
   createdAt: string;
   lastLogin?: string;
   isActive: boolean;
@@ -15,7 +18,7 @@ export interface Server {
   port: number;
   status: '0' | '1' | '2';
   description?: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface FileItem {
