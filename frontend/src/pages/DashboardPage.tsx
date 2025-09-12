@@ -4,24 +4,26 @@ import { DashboardStats } from "../types";
 import { useAuthStore } from "../stores/authStore";
 import styles from "./DashboardPage.module.css";
 import { serverService } from "../services/serverService";
+import { userService } from "../services/userService";
 
 const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuthStore();
+  const user = useAuthStore().user;
 
   useEffect(() => {
     loadDashboardData();
   }, []);
 
   const loadDashboardData = async () => {
-    const servers = await serverService.getServers();
+    const servers = await serverService.getServers()
+    const users = await userService.getUsers()
 
     setStats({
       totalServers: servers.length,
       onlineServers: servers.filter((s) => s.status === "1").length,
       totalFiles: 24,
-      totalUsers: 5,
+      totalUsers: users.length,
       recentActivity: [
         {
           id: "1",
@@ -63,6 +65,7 @@ const DashboardPage: React.FC = () => {
 
   if (!stats) return null;
 
+  console.log(user);
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>

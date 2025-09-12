@@ -17,13 +17,26 @@ const UserManagementPage: React.FC = () => {
   const { user: currentUser } = useAuthStore();
 
   useEffect(() => {
-    loadUsers();
+    (async () => {
+    try {
+      setLoading(true);
+      const users = await userService.getUsers();
+      setUsers(users || []);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      // setError('Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  })();
   }, []);
 
   const loadUsers = async () => {
     try {
       const data = await userService.getUsers();
-      setUsers(data);
+      
+      console.log("logged " + data);
+      setUsers(data || []);
     } catch (error) {
       toast.error("Failed to load users");
       console.error("Failed to load users:", error);
@@ -145,10 +158,10 @@ const UserManagementPage: React.FC = () => {
               <div key={user.id} className={styles.tableRow}>
                 <div className={styles.userCell}>
                   <div className={styles.userAvatar}>
-                    {user.display_name.charAt(0).toUpperCase()}
+                    {user.displayName.charAt(0).toUpperCase()}
                   </div>
                   <div className={styles.userInfo}>
-                    <h3 className={styles.username}>{user.display_name}</h3>
+                    <h3 className={styles.username}>{user.displayName}</h3>
                     <p className={styles.userEmail}>{user.email}</p>
                   </div>
                 </div>
@@ -227,7 +240,7 @@ const UserManagementPage: React.FC = () => {
       {deletingUser && (
         <ConfirmDialog
           title="Delete User"
-          message={`Are you sure you want to delete "${deletingUser.display_name}"? This action cannot be undone.`}
+          message={`Are you sure you want to delete "${deletingUser.displayName}"? This action cannot be undone.`}
           confirmText="Delete"
           onConfirm={handleDeleteUser}
           onCancel={() => setDeletingUser(null)}

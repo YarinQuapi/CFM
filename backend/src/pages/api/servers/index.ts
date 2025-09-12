@@ -25,7 +25,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       const servers = await getServers();
       res.status(200).json({ ok: true, servers });
     } catch (error) {
-      res.status(500).json({ error: 'Server error', detail: error.message });
+      res.status(500).json({ error: 'Server error', detail: error  .message });
     }
   } else if (req.method === 'POST') {
     const { type, server } = req.body;

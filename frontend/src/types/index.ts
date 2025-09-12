@@ -1,11 +1,10 @@
 export interface User {
   id: string;
-  first_name: string;
-  last_name: string;
-  display_name: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
   email: string;
   role: '0' | '1' | '2';
-  token: string;
   createdAt: string;
   lastLogin?: string;
   isActive: boolean;

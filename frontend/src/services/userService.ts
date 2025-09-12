@@ -4,11 +4,10 @@ import { User } from '../types';
 
 export const userService = {
   async getUsers(): Promise<User[]> {
-    const users = await fetchFromAPI('api/users', 'GET')
+    const response = await fetchFromAPI('api/users', 'GET');
+    const data = await response.json();
 
-    console.log(users);
-
-    return users.users;
+    return data.users || [];
   },
 
   async createUser(user: User): Promise<User> {
@@ -18,6 +17,8 @@ export const userService = {
       throw new Error('Failed to create user');
     }
 
+    const data = await response.json();
+    console.log('Create user response data:', data);
 
     return {
       ...response.user
@@ -28,9 +29,22 @@ export const userService = {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const users = await this.getUsers();
+    
     const user = users.find(u => u.id === id);
     if (!user) throw new Error('User not found');
+
+    Object.keys(updates).forEach(key => {
+      if (updates[key as keyof User] !== undefined) {
+        (user as any)[key] = updates[key as keyof User];
+      }
+    });
     
+    const response = await fetchFromAPI('api/users', 'POST', JSON.stringify({type: 'update', user}));
+
+    if (!response.ok) {
+      throw new Error('Failed to update user');
+    }
+
     return { ...user, ...updates };
   },
 

@@ -36,8 +36,12 @@ const LoginPage: React.FC = () => {
     
     try {
       const response = await authService.login(credentials);
-      login(response.user, response.token);
-      toast.success(`Welcome back, ${response.user.username}!`);
+      if (!response.ok) throw new Error('Login failed');
+
+      if (response.user) {
+        login(response.user, response.user.token);
+        toast.success(`Welcome back, ${response.user.displayName}!`);
+      }
     } catch (error: any) {
       toast.error(error.message || 'Login failed. Please check your credentials.');
     } finally {

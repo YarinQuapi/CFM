@@ -13,7 +13,9 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
   const [formData, setFormData] = useState({
-    username: "",
+    firstName: "",
+    lastName: "",
+    displayName: "",
     email: "",
     role: "viewer" as User["role"],
     isActive: true,
@@ -26,7 +28,9 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
   useEffect(() => {
     if (user) {
       setFormData({
-        username: user.display_name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: user.displayName,
         email: user.email,
         role: user.role,
         isActive: user.isActive,
@@ -39,9 +43,9 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!formData.username.trim()) {
+    if (!formData.displayName.trim()) {
       newErrors.username = "Username is required";
-    } else if (formData.username.length < 3) {
+    } else if (formData.displayName.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
     }
 
@@ -74,7 +78,9 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
 
     try {
       const userData = {
-        username: formData.username,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        displayName: formData.displayName,
         email: formData.email,
         role: formData.role,
         isActive: formData.isActive,
@@ -108,17 +114,17 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
 
   const roleOptions = [
     {
-      value: "viewer",
+      value: "0",
       label: "Viewer",
       description: "Can view servers and files",
     },
     {
-      value: "editor",
+      value: "1",
       label: "Editor",
       description: "Can manage servers and files",
     },
     {
-      value: "superadmin",
+      value: "2",
       label: "Super Admin",
       description: "Full system access",
     },
@@ -143,20 +149,21 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGrid}>
+            
             <div className={styles.formGroup}>
               <label className="form-label" htmlFor="username">
                 <FiUser className={styles.labelIcon} />
-                Username *
+                Display Name *
               </label>
               <input
-                id="username"
+                id="displayName"
                 type="text"
                 className={`input-base ${
                   errors.username ? styles.inputError : ""
                 }`}
-                placeholder="Enter username"
-                value={formData.username}
-                onChange={(e) => handleInputChange("username", e.target.value)}
+                placeholder="Enter display name"
+                value={formData.displayName}
+                onChange={(e) => handleInputChange("displayName", e.target.value)}
                 disabled={loading}
               />
               {errors.username && (
@@ -184,6 +191,49 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
                 <span className={styles.errorMessage}>{errors.email}</span>
               )}
             </div>
+
+<div className={styles.formGroup}>
+              <label className="form-label" htmlFor="username">
+                <FiUser className={styles.labelIcon} />
+                First Name *
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                className={`input-base ${
+                  errors.firstName ? styles.inputError : ""
+                }`}
+                placeholder="Enter first name"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange("firstName", e.target.value)}
+                disabled={loading}
+              />
+              {errors.username && (
+                <span className={styles.errorMessage}>{errors.username}</span>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className="form-label" htmlFor="username">
+                <FiUser className={styles.labelIcon} />
+                Last Name *
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                className={`input-base ${
+                  errors.lastName ? styles.inputError : ""
+                }`}
+                placeholder="Enter last name"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                disabled={loading}
+              />
+              {errors.username && (
+                <span className={styles.errorMessage}>{errors.username}</span>
+              )}
+            </div>
+
           </div>
 
           <div className={styles.formGroup}>

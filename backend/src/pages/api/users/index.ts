@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import pool from '@/lib/helper'
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { randomUUID } from 'crypto';
+import handleError from '@/lib/errorhandler';
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
@@ -34,22 +34,32 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
+  // console.log(req);
   switch (req.method) {
+
     case 'GET':
+        const [rows] = await pool.execute('SELECT id, displayName, firstName, lastName, email, role, createdAt, lastLogin, isActive FROM users');
+        return res.status(200).json({ ok: true, users: rows });
+    case 'POST':
       try {
         switch (req.body.type) {
-            case "list":
-                const [rows] = await pool.execute('SELECT id, username, email, role, createdAt, lastLogin, isActive FROM users');
-                return res.status(200).json(rows);
             case "authorize":
+
+            // console.group("Authorize Request");
+            //     console.log(req);
+            // console.group("Authorize Request");
+
                 const { username, password } = req.body.credentials;
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const row = await pool.query('SELECT token FROM users WHERE email = ?', [username]) as [User[], any];
+                const row = await pool.query('SELECT * FROM users WHERE email = ?', username) as [User[], []];
 
+                console.log(row);
                 const user = row[0][0];
+                console.log(user);
 
-                const token = row.length > 0 ? user.token : null;
+                if (!user) return res.end(401).json({ error: 'Username or password incorrec' });
+                const token = user.token;
 
                 const valid = token ? await isValid(password, token) : false;
 
@@ -57,23 +67,39 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
                 user.token = sessToken;
 
-                return valid ? res.status(200).json({user: user}) : res.end(401);
+                return valid ? res.status(200).json({user: user, token: sessToken}) : res.end(401);
             case "create":
-                const { first_name, last_name, display_name, email, role, isActive } = req.body.user;
+              console.log(req.body);
+
+                const { firstName, lastName, displayName, email, role } = req.body.user;
                 const plainPassword = req.body.user.password;
                 const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
                 const [result] = await pool.execute(
-                    'INSERT INTO users (id, first_name, last_name, display_name, email, role, token, createdAt, isActive) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)',
-                    [randomUUID(), first_name, last_name, display_name, email, role, hashedPassword, isActive]
+                    'INSERT INTO users (id, firstName, lastName, displayName, email, role, token, createdAt, lastLogin, isActive) VALUES (uuid(), ?, ?, ?, ?, ?, ?, NOW(), NOW(), 1)',
+                    [firstName, lastName, displayName, email, role, hashedPassword]
                 );
                 res.status(201).json({ id: (result as { insertId: number }).insertId, ...req.body.user, token: undefined });
+                break;
+            case "update":
+                const { id, firstName: uFirstName, lastName: uLastName, displayName: uDisplayName, email: uEmail, role: uRole, isActive } = req.body.user;
 
+                if (!id) {
+                  res.status(400).json({ error: 'Missing user ID for update' });
+                  return;
+                }
+                const [updateResult] = await pool.execute(
+                    'UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, role = ?, isActive = ? WHERE id = ?',
+                    [uFirstName, uLastName, uDisplayName, uEmail, uRole, isActive ? 1 : 0, id]
+                );
+
+                res.status(200).json({ ok: true });
+                break;
             default:
                 res.status(400).json({ error: 'Invalid request type' });
         }
         } catch (error) {
-        res.status(500).json({ error: 'Server error', detail: error instanceof Error ? error.message : "unknown error" });
+        res.status(500).json({ error: 'Server error', detail: handleError(error)});
       }
     }
       
