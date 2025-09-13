@@ -25,7 +25,7 @@ const Header: React.FC = () => {
           
           <div className={styles.userProfile}>
             <div className={styles.userAvatar}>
-              {user?.username?.charAt(0).toUpperCase()}
+              {user?.displayName?.charAt(0).toUpperCase()}
             </div>
           </div>
         </div>

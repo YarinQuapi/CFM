@@ -9,7 +9,7 @@ import { userService } from "../services/userService";
 const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const user = useAuthStore().user;
+  const { user } = useAuthStore();
 
   useEffect(() => {
     loadDashboardData();
@@ -65,12 +65,11 @@ const DashboardPage: React.FC = () => {
 
   if (!stats) return null;
 
-  console.log(user);
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>
         <h1 className={styles.title}>Dashboard</h1>
-        <p className={styles.subtitle}>Welcome back, {user?.display_name}!</p>
+        <p className={styles.subtitle}>Welcome back, {user?.displayName}!</p>
       </div>
 
       <div className={styles.statsGrid}>
@@ -159,7 +158,7 @@ const DashboardPage: React.FC = () => {
               <FiFolder className={styles.actionIcon} />
               <span>Shared Files</span>
             </a>
-            {user?.role === "2" && (
+            {user && (
               <a href="/users" className={styles.actionCard}>
                 <FiUsers className={styles.actionIcon} />
                 <span>User Management</span>

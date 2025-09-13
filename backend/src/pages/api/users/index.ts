@@ -11,9 +11,9 @@ const isValid = async (password: string, token: string) => await bcrypt.compare(
 
 interface User {
   id: string;
-  first_name: string;
-  last_name: string;
-  display_name: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
   email: string;
   role: '0' | '1' | '2';
   token: string;
@@ -34,7 +34,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  // console.log(req);
   switch (req.method) {
 
     case 'GET':
@@ -44,14 +43,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         switch (req.body.type) {
             case "authorize":
-
-            // console.group("Authorize Request");
-            //     console.log(req);
-            // console.group("Authorize Request");
-
                 const { username, password } = req.body.credentials;
 
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const row = await pool.query('SELECT * FROM users WHERE email = ?', username) as [User[], []];
 
                 console.log(row);
@@ -95,6 +88,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
                 res.status(200).json({ ok: true });
                 break;
+			case 'delete':
+				const { userId } = req.body;
+				if (!userId) {
+					res.status(400).json({ error: 'Missing user ID for deletion' });
+				}
+
+				const [deleteResult] = await pool.execute('DELETE FROM users WHERE id = ?', userId);
+
+				res.status(200).json({ ok: true });
             default:
                 res.status(400).json({ error: 'Invalid request type' });
         }

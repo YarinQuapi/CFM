@@ -9,16 +9,22 @@ interface AuthStore extends AuthState {
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
-  user: null,
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null,
   token: localStorage.getItem('token'),
   isAuthenticated: false,
   
+  getUser: () => {
+	return get().user;
+  },
+
   login: (user, token) => {
     localStorage.setItem('token', token);
+	localStorage.setItem('user', JSON.stringify(user));
     set({ user, token, isAuthenticated: true });
   },
   
   logout: () => {
+	localStorage.removeItem('user');
     localStorage.removeItem('token');
     set({ user: null, token: null, isAuthenticated: false });
   },
@@ -28,7 +34,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   initializeAuth: () => {
     const token = localStorage.getItem('token');
     if (token) {
-      // In a real app, verify token with backend
+      // WIP: validate token with backend
       set({ token, isAuthenticated: true });
     }
   }

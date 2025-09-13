@@ -1,3 +1,4 @@
+import { useAuthStore } from '../stores/authStore';
 import { FileItem, SharedFile } from '../types';
 
 export const fileService = {
@@ -65,8 +66,26 @@ export const fileService = {
     ];
   },
 
-  async uploadFiles(path: string, files: FileList): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  async uploadFiles(serverId: string, path: string, files: FileList): Promise<void> {
+    const formData = new FormData();
+	const userId = useAuthStore.getState().user?.id || 'unknown';
+
+    for (let i = 0; i < files.length; i++) {
+      formData.append('file', files[i]);
+    }
+
+	formData.append('uploaderUserId', userId);
+	formData.append('serverId', serverId);
+	formData.append('path', path);
+
+    const response = await fetch('/api/files', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('File upload failed');
+    }
   },
 
   async createDirectory(path: string, name: string): Promise<void> {

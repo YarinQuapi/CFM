@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="username" className={styles.label}>
-              Username
+              Email Address
             </label>
             <div className={styles.inputWrapper}>
               <FiUser className={styles.inputIcon} />

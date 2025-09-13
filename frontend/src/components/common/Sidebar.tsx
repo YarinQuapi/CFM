@@ -47,10 +47,10 @@ const Sidebar: React.FC = () => {
       <div className={styles.footer}>
         <div className={styles.userInfo}>
           <div className={styles.userAvatar}>
-            {user?.username?.charAt(0).toUpperCase()}
+            {user?.displayName?.charAt(0).toUpperCase()}
           </div>
           <div className={styles.userDetails}>
-            <span className={styles.username}>{user?.username}</span>
+            <span className={styles.username}>{user?.displayName}</span>
             <span className={styles.userRole}>{user?.role}</span>
           </div>
         </div>
