@@ -30,7 +30,7 @@ export const serverService = {
     return data.servers;
 
   } catch (error) {
-    alert(error.message);
+    alert(error instanceof Error ? error.message : "An unknown error occurred");
     return [];
   }
   },

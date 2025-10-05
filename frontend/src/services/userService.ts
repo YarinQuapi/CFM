@@ -18,7 +18,6 @@ export const userService = {
     }
 
     const data = await response.json();
-    console.log('Create user response data:', data);
 
     return {
       ...response.user
@@ -49,6 +48,12 @@ export const userService = {
   },
 
   async deleteUser(id: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const response = await fetchFromAPI('api/users', 'POST', JSON.stringify({type: 'delete', id}));
+
+    console.log(id);
+
+    if (!response.ok) {
+      throw new Error('Failed to delete user');
+    }
   }
 };

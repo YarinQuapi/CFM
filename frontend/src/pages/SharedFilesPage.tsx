@@ -22,7 +22,7 @@ const SharedFilesPage: React.FC = () => {
   } | null>(null);
   const { user } = useAuthStore();
 
-  const canEdit = user?.role !== 'viewer';
+  const canEdit = user?.role !== '0';
 
   useEffect(() => {
     loadSharedFiles();

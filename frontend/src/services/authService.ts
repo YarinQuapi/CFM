@@ -6,14 +6,15 @@ export const authService = {
       JSON.stringify({
         type: 'authorize',
         credentials
-       }));
+      }));
+      
+      const data = await loginRequest.json();
+      
+      if (loginRequest.status !== 200) {
+          return { ok: false, error: 'Invalid username or password' };
+        }
+        
+      return { ok: true, user: data.user };
 
-    const data = await loginRequest.json();
-
-    if (loginRequest.status !== 200) {
-      return { ok: false, error: 'Invalid username or password' };
-    }
-
-    return { ok: true, user: data.user };
   }
 };

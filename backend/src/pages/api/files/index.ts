@@ -1,32 +1,37 @@
-// pages/api/files.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import formidable from 'formidable';
-import { MongoClient, GridFSBucket, Db, ObjectId } from 'mongodb';
 import fs from 'fs';
 import pool from '@/lib/helper';
+import { MongoClient, GridFSBucket, ObjectId, Db } from 'mongodb';
+import formidable from 'formidable';
 
 export const config = {
   api: { bodyParser: false },
 };
 
 const uri = process.env.MONGODB_URI || '';
-const DB_NAME = process.env.MONGODB_DB || 'CFM';
 const client = new MongoClient(uri);
 
-let cachedDb: Db | null = null;
+const cachedDb: Db | null = null;
 
-async function connectToMongo(): Promise<Db> {
-  if (cachedDb) return cachedDb;
-    
- 
-  await client.connect();
+async function connectToMongo() : Promise<Db> {
+      try {
+        await client.connect(); // Await the connection
+        // Now you can safely interact with the database
+        const db = client.db("cfm");
 
-
-  cachedDb = client.db(DB_NAME); // specify DB name here if needed
-  return cachedDb;
-}
+		return db;
+      } catch (error) {
+        console.error("Error connecting to MongoDB:", error);
+		throw error; // Rethrow the error after logging it
+      } finally {
+      }
+    }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3001');
+  	res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+	res.setHeader('Access-Control-Allow-Credentials', 'true');
 
 	if (req.method === 'OPTIONS') {
 		res.status(200).end();
@@ -43,6 +48,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 	if (req.method === 'POST') {
 
+
+		// res.end(403).json({ ok: false, error: 'Not implemented' });
+
+		console.group("Handling file upload");
+
 		const db = await connectToMongo();
 		const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
 
@@ -52,10 +62,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			maxFileSize: 16 * 1024 * 1024, // 16MB
 		 });
 
-		form.parse(req, async (err, fields, files) => {
+		//  console.log(form);
+
+		console.groupEnd();
+
+		console.log("Parsing form data...");
+		console.log(req.body);
+
+		form.parse(req.body.formData, async (err, fields, files) => {
 			if (err) {
 				return res.status(500).json({ error: 'Error parsing form data' });
 			}
+			
+			console.log(fields);
+			console.log(files);
+
 
 			const uploaderUserId = Array.isArray(fields.uploaderUserId)
 			? fields.uploaderUserId[0]

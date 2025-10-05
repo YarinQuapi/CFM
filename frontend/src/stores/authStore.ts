@@ -14,17 +14,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   
   getUser: () => {
-	return get().user;
+	  return get().user;
   },
 
   login: (user, token) => {
     localStorage.setItem('token', token);
-	localStorage.setItem('user', JSON.stringify(user));
+	  localStorage.setItem('user', JSON.stringify(user));
     set({ user, token, isAuthenticated: true });
   },
   
   logout: () => {
-	localStorage.removeItem('user');
+	  localStorage.removeItem('user');
     localStorage.removeItem('token');
     set({ user: null, token: null, isAuthenticated: false });
   },

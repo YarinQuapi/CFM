@@ -51,7 +51,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 const user = row[0][0];
                 console.log(user);
 
-                if (!user) return res.end(401).json({ error: 'Username or password incorrec' });
+                if (!user) return res.end(401).json({ error: 'Username or password incorrect' });
                 const token = user.token;
 
                 const valid = token ? await isValid(password, token) : false;
@@ -60,6 +60,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
                 user.token = sessToken;
 
+                // return res.status(200).json({ ok: true, user: user });
                 return valid ? res.status(200).json({user: user, token: sessToken}) : res.end(401);
             case "create":
               console.log(req.body);
@@ -89,12 +90,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 res.status(200).json({ ok: true });
                 break;
 			case 'delete':
-				const { userId } = req.body;
+				const { id: userId } = req.body;
 				if (!userId) {
 					res.status(400).json({ error: 'Missing user ID for deletion' });
 				}
 
-				const [deleteResult] = await pool.execute('DELETE FROM users WHERE id = ?', userId);
+				const [deleteResult] = await pool.execute('DELETE FROM users WHERE id = ?', [userId]);
 
 				res.status(200).json({ ok: true });
             default:
