@@ -1,31 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
+import path from 'path';
+import fs from 'fs/promises';
+import { IncomingForm } from 'formidable';
+import { randomUUID } from 'crypto';
 import pool from '@/lib/helper';
-import { MongoClient, GridFSBucket, ObjectId, Db } from 'mongodb';
-import formidable from 'formidable';
 
 export const config = {
-  api: { bodyParser: false },
+	api: {
+		bodyParser: false,
+	},
 };
-
-const uri = process.env.MONGODB_URI || '';
-const client = new MongoClient(uri);
-
-const cachedDb: Db | null = null;
-
-async function connectToMongo() : Promise<Db> {
-      try {
-        await client.connect(); // Await the connection
-        // Now you can safely interact with the database
-        const db = client.db("cfm");
-
-		return db;
-      } catch (error) {
-        console.error("Error connecting to MongoDB:", error);
-		throw error; // Rethrow the error after logging it
-      } finally {
-      }
-    }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3001');
@@ -37,115 +21,73 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		res.status(200).end();
 		return;
   	}
+	
+	const uploadDir = path.join(process.cwd(), '../uploads');
 
-	if (req.method === 'GET') {
-		const db = await connectToMongo();
-		const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
-		const files = await bucket.find().toArray();
-		return res.status(200).json({ files, ok: true });
-	}
-		
+	if (req.method === "POST") {
 
-	if (req.method === 'POST') {
+		try {
+			await fs.access(uploadDir);
+		} catch {
+			await fs.mkdir(uploadDir);
+		}
 
+		const form = new IncomingForm({ uploadDir, keepExtensions: true });
 
-		// res.end(403).json({ ok: false, error: 'Not implemented' });
-
-		console.group("Handling file upload");
-
-		const db = await connectToMongo();
-		const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
-
-		const form = formidable({ 
-			multiples: false,
-			keepExtensions: true,
-			maxFileSize: 16 * 1024 * 1024, // 16MB
-		 });
-
-		//  console.log(form);
-
-		console.groupEnd();
-
-		console.log("Parsing form data...");
-		console.log(req.body);
-
-		form.parse(req.body.formData, async (err, fields, files) => {
+		form.parse(req, async (err, fields, files) => {
 			if (err) {
-				return res.status(500).json({ error: 'Error parsing form data' });
+				res.statusCode = 500;
+				res.end(JSON.stringify({ error: String(err) }));
+				return;
 			}
-			
-			console.log(fields);
-			console.log(files);
+			// files.file is your uploaded file (if you appended as 'file')
 
-
-			const uploaderUserId = Array.isArray(fields.uploaderUserId)
-			? fields.uploaderUserId[0]
-			: fields.uploaderUserId;
-
-			let serverId = Array.isArray(fields.serverId)
-			? fields.serverId[0]
-			: fields.serverId;
-
-			const path = Array.isArray(fields.path)
-			? fields.path[0]
-			: fields.path;
-
-
-			if (!uploaderUserId) {
-				return res.status(400).json({ error: 'Uploader user ID is required' });
-			}
-
-			if (!serverId) {
-				serverId = 'shared';
-			}
-
-			if (!path) {
-				return res.status(400).json({ error: 'Path is required' });
-			}
-
-			if (!files.file) {
-				return res.status(400).json({ error: 'No file uploaded' });
-			}
-
-			const uploadedFiles = Array.isArray(files.file) ? files.file : [files.file];
-			const insertedFiles = [];
+			const file = Array.isArray(files.file) ? files.file[0] : files.file;
+			if (file === undefined) { res.end(500).json({ok: false, error: "No file selected"}); return; }
+			const tempPath = file.filepath;
+			const newPath = path.join(uploadDir, file?.originalFilename ?? randomUUID());
 
 			try {
-			for (const file of uploadedFiles) {
-				const readStream = fs.createReadStream(file.filepath);
-				const gridFsFileId = new ObjectId();
-				const filename = file.originalFilename || file.newFilename || 'unknown';
-
-				await new Promise((resolve, reject) => {
-					const uploadStream = bucket.openUploadStreamWithId(gridFsFileId, filename, {
-						metadata: { uploaderUserId },
-					});
-
-				readStream
-					.pipe(uploadStream)
-					.on('error', reject)
-					.on('finish', resolve);
-				});
-
-				// Store metadata in MySQL database
-				await pool.execute(
-					'INSERT INTO files (id, name, path, uploader, createdAt) VALUES (?, ?, ?, ?, NOW())',
-					[gridFsFileId, filename, `/uploads/${serverId}/${path}/${filename}`, uploaderUserId]
-				);
-
-				insertedFiles.push({
-					id: gridFsFileId,
-					name: filename,
-					path: `/uploads/${serverId}/${path}/${filename}`,
-				});
+				await fs.rename(tempPath, newPath); // Move from temp to final location
+				res.status(200).json({ message: 'File uploaded successfully!' });
+			} catch (err) {
+				res.status(500).json({ error: 'Saving file failed' });
 			}
+		});
+	}
 
-			return res.status(200).json({ uploadedFiles: insertedFiles, ok: true });
-			} catch (uploadError) {
-			return res.status(500).json({ error: 'Uploading failed', detail: uploadError instanceof Error ? uploadError.message : uploadError });
-			}
-		});	
-	};
+	// {
+    //     id: '2',
+    //     name: 'server-icon.png',
+    //     path: '/server-icon.png',
+    //     type: 'file',
+    //     size: 4096,
+    //     uploadedBy: '1',
+    //     uploadedAt: '2024-02-12T14:30:00Z',
+    //     sharedWith: ['1', '2'],
+    //     syncStatus: 'pending'
+    //   }
+
+	if (req.method === "GET") {
+		switch (req.body.type) {
+			case "list":
+				const [listResult] = await pool.query("SELECT * FROM files");
+
+				
+				break;
+		}
+
+	}
+}
+
+async function listFiles(dirPath : string) {
+  try {
+    const files = await fs.readdir(dirPath);
+    return files; 
+  } catch (err) {
+    console.error('Error listing files:', err);
+    return [];
+  }
 }
 
 export default handler;

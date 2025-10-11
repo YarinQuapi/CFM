@@ -78,10 +78,7 @@ export const fileService = {
     formData.append('uploaderUserId', userId);
     formData.append('path', path);
 
-
-console.log(formData);
-
-    const response = await fetchFromAPI('api/files', 'POST', JSON.stringify({ body: formData }));
+    const response = await fetch('http://localhost:3000/api/files', { method: "POST", body: formData });
 
     if (!response.ok) {
       throw new Error('File upload failed');
