@@ -1,4 +1,4 @@
-import fetchFromAPI from '../lib/api';
+import { fetchFromAPIObject } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { FileItem, SharedFile } from '../types';
 
@@ -72,13 +72,16 @@ export const fileService = {
     const userId = useAuthStore.getState().user?.id || 'unknown';
 
     for (let i = 0; i < files.length; i++) {
-      formData.append('file', files[i]);
+      formData.set('file', files[i]);
     }
 
-    formData.append('uploaderUserId', userId);
-    formData.append('path', path);
+    const body = {
+      formData,
+      uploader: userId,
+      path: path
+    }
 
-    const response = await fetch('http://localhost:3000/api/files', { method: "POST", body: formData });
+    const response = await fetchFromAPIObject('api/files', "POST", body);
 
     if (!response.ok) {
       throw new Error('File upload failed');

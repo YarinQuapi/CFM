@@ -4,12 +4,16 @@ import fs from 'fs/promises';
 import { IncomingForm } from 'formidable';
 import { randomUUID } from 'crypto';
 import pool from '@/lib/helper';
+import { reportWebVitals } from 'next/dist/build/templates/pages';
 
 export const config = {
 	api: {
 		bodyParser: false,
 	},
 };
+
+
+const uploadDir = path.join(process.cwd(), '../uploads');
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3001');
@@ -22,7 +26,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		return;
   	}
 	
-	const uploadDir = path.join(process.cwd(), '../uploads');
 
 	if (req.method === "POST") {
 
@@ -34,18 +37,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		const form = new IncomingForm({ uploadDir, keepExtensions: true });
 
-		form.parse(req, async (err, fields, files) => {
+		form.parse(req.body.formData, async (err, fields, files) => {
 			if (err) {
 				res.statusCode = 500;
 				res.end(JSON.stringify({ error: String(err) }));
 				return;
 			}
-			// files.file is your uploaded file (if you appended as 'file')
 
-			const file = Array.isArray(files.file) ? files.file[0] : files.file;
+			const file = req.body.formData;
 			if (file === undefined) { res.end(500).json({ok: false, error: "No file selected"}); return; }
 			const tempPath = file.filepath;
 			const newPath = path.join(uploadDir, file?.originalFilename ?? randomUUID());
+
+			console.log(files);
+
+			await pool.query("INSERT INTO files (id, name, path, uploader, createdAt) VALUES (uuid(), ?, ?, ?, now())", [file?.originalFilename, req.body.path, req.body.uploader]);
 
 			try {
 				await fs.rename(tempPath, newPath); // Move from temp to final location
@@ -53,6 +59,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			} catch (err) {
 				res.status(500).json({ error: 'Saving file failed' });
 			}
+
+
 		});
 	}
 
@@ -71,9 +79,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	if (req.method === "GET") {
 		switch (req.body.type) {
 			case "list":
-				const [listResult] = await pool.query("SELECT * FROM files");
+				const [listResult] = await pool.query("SELECT * FROM files;");
 
-				
+
 				break;
 		}
 
@@ -82,8 +90,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 async function listFiles(dirPath : string) {
   try {
-    const files = await fs.readdir(dirPath);
-    return files; 
+    const files = await fs.readdir(path.join(uploadDir, dirPath));
+    return files;
   } catch (err) {
     console.error('Error listing files:', err);
     return [];
