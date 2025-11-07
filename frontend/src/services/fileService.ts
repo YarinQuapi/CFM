@@ -1,6 +1,5 @@
-import { fetchFromAPIObject } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
-import { FileItem, SharedFile } from '../types';
+import { FileItem } from '../types';
 
 export const fileService = {
   async getServerFiles(serverId: string, path: string = '/'): Promise<FileItem[]> {
@@ -14,57 +13,21 @@ export const fileService = {
         path: '/world',
         type: 'directory',
         modifiedAt: '2024-02-15T10:30:00Z',
+        uploader: "sdfsdf",
         isShared: false,
-        sharedWith: []
+        sharedWith: [],
+        syncStatus: "synced",
+        createdAt: ""
       },
-      {
-        id: '2',
-        name: 'plugins',
-        path: '/plugins',
-        type: 'directory',
-        modifiedAt: '2024-02-14T15:20:00Z',
-        isShared: true,
-        sharedWith: ['2', '3']
-      },
-      {
-        id: '3',
-        name: 'server.properties',
-        path: '/server.properties',
-        type: 'file',
-        size: 1024,
-        modifiedAt: '2024-02-16T08:45:00Z',
-        isShared: true,
-        sharedWith: ['1', '2']
-      }
     ];
   },
 
-  async getSharedFiles(path: string = '/'): Promise<SharedFile[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return [
-      {
-        id: '1',
-        name: 'common-plugins',
-        path: '/common-plugins',
-        type: 'directory',
-        uploadedBy: '1',
-        uploadedAt: '2024-02-10T12:00:00Z',
-        sharedWith: ['1', '2', '3'],
-        syncStatus: 'synced'
-      },
-      {
-        id: '2',
-        name: 'server-icon.png',
-        path: '/server-icon.png',
-        type: 'file',
-        size: 4096,
-        uploadedBy: '1',
-        uploadedAt: '2024-02-12T14:30:00Z',
-        sharedWith: ['1', '2'],
-        syncStatus: 'pending'
-      }
-    ];
+  async getSharedFiles(): Promise<FileItem[]> {
+    const response = await fetch("http://localhost:3000/api/files");
+
+    const data = await response.json();
+
+    return data.files;
   },
 
   async uploadFiles(path: string, files: FileList): Promise<void> {
@@ -73,23 +36,36 @@ export const fileService = {
 
     for (let i = 0; i < files.length; i++) {
       formData.set('file', files[i]);
+      formData.set('userId', userId);
+      formData.set('path', path);
     }
 
-    const body = {
-      formData,
-      uploader: userId,
-      path: path
-    }
-
-    const response = await fetchFromAPIObject('api/files', "POST", body);
+    const response = await fetch('http://localhost:3000/api/files', { method: "POST", body: formData });
 
     if (!response.ok) {
       throw new Error('File upload failed');
     }
   },
 
-  async createDirectory(path: string, name: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 300));
+  async createDirectory(path: string, name: string, uploader: string): Promise<void> {
+    const response = await fetch("http://localhost:3000/api/files/create-directory",  
+        {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                type: 'post-action',
+                action: 'create-directory',
+                uploader: uploader,
+                name: name,
+                path: path
+            })
+        });
+
+    if (!response.ok) {
+        throw new Error(await response.text());
+    }
   },
 
   async shareFileWithServer(fileId: string, serverId: string): Promise<void> {

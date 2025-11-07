@@ -17,7 +17,7 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
     lastName: "",
     displayName: "",
     email: "",
-    role: "viewer" as User["role"],
+    role: "0" as User["role"],
     isActive: true,
     password: "",
     confirmPassword: "",

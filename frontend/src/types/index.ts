@@ -4,7 +4,7 @@ export interface User {
   lastName: string;
   displayName: string;
   email: string;
-  role: '0' | '1' | '2';
+  role: string;
   createdAt: string;
   lastLogin?: string;
   isActive: boolean;
@@ -26,22 +26,13 @@ export interface FileItem {
   path: string;
   type: 'file' | 'directory';
   size?: number;
-  modifiedAt: string;
+  uploader: string;
+  modifiedAt?: string;
   permissions?: string[];
   sharedWith?: string[]; // server IDs
   isShared: boolean;
-}
-
-export interface SharedFile {
-  id: string;
-  name: string;
-  path: string;
-  type: 'file' | 'directory';
-  size?: number;
-  uploadedBy: string;
-  uploadedAt: string;
-  sharedWith: string[]; // server IDs
   syncStatus: 'synced' | 'pending' | 'error';
+  createdAt: string;
 }
 
 export interface AuthState {

@@ -17,7 +17,7 @@ const Sidebar: React.FC = () => {
     { path: '/dashboard', label: 'Dashboard', icon: FiHome },
     { path: '/servers', label: 'Servers', icon: FiServer },
     { path: '/shared-files', label: 'Shared Files', icon: FiFolder },
-    ...(user?.role === '2' ? [
+    ...(user?.role  === "2" ? [
       { path: '/users', label: 'User Management', icon: FiUsers }
     ] : []),
   ];

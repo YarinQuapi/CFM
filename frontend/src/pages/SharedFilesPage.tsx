@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FiPlus, FiFolder, FiFile, FiUpload, FiServer, FiMoreVertical } from 'react-icons/fi';
-import { SharedFile } from '../types';
+import { FiFolder, FiFile, FiUpload, FiServer, FiMoreVertical } from 'react-icons/fi';
+import { FileItem } from '../types';
 import { fileService } from '../services/fileService';
 import CreateDirectoryModal from '../components/files/CreateDirectoryModal';
 import FileUploadModal from '../components/files/FileUploadModal';
@@ -8,9 +8,10 @@ import FileContextMenu from '../components/files/FileContextMenu';
 import { useAuthStore } from '../stores/authStore';
 import toast from 'react-hot-toast';
 import styles from './SharedFilesPage.module.css';
+import path from 'path';
 
 const SharedFilesPage: React.FC = () => {
-  const [files, setFiles] = useState<SharedFile[]>([]);
+  const [files, setFiles] = useState<FileItem[]>([]);
   const [currentPath, setCurrentPath] = useState('/');
   const [loading, setLoading] = useState(true);
   const [showCreateDirModal, setShowCreateDirModal] = useState(false);
@@ -18,20 +19,20 @@ const SharedFilesPage: React.FC = () => {
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
-    file: SharedFile;
+    file: FileItem;
   } | null>(null);
   const { user } = useAuthStore();
 
   const canEdit = user?.role !== '0';
 
   useEffect(() => {
-    loadSharedFiles();
+    loadFileItems();
   }, [currentPath]);
 
-  const loadSharedFiles = async () => {
+  const loadFileItems = async () => {
     try {
       const data = await fileService.getSharedFiles(currentPath);
-      setFiles(data);
+      setFiles(data.filter(item => item.path === currentPath));
     } catch (error) {
       toast.error('Failed to load shared files');
       console.error('Failed to load shared files:', error);
@@ -40,13 +41,14 @@ const SharedFilesPage: React.FC = () => {
     }
   };
 
-  const handleFileClick = (file: SharedFile) => {
+  const handleFileClick = (file: FileItem) => {
     if (file.type === 'directory') {
-      setCurrentPath(file.path);
+      setCurrentPath(file.path + file.name);
+      console.log("clicked directory new path is " + file.path)
     }
   };
 
-  const handleFileRightClick = (e: React.MouseEvent, file: SharedFile) => {
+  const handleFileRightClick = (e: React.MouseEvent, file: FileItem) => {
     e.preventDefault();
     if (canEdit) {
       setContextMenu({
@@ -58,9 +60,11 @@ const SharedFilesPage: React.FC = () => {
   };
 
   const handleCreateDirectory = async (name: string) => {
+    const userId = useAuthStore.getState().user?.id || 'unknown';
+
     try {
-      await fileService.createDirectory(currentPath, name);
-      loadSharedFiles();
+      await fileService.createDirectory(currentPath, name, userId);
+      loadFileItems();
       toast.success('Directory created successfully');
     } catch (error) {
       toast.error('Failed to create directory');
@@ -71,7 +75,7 @@ const SharedFilesPage: React.FC = () => {
   const handleFileUpload = async (files: FileList) => {
     try {
       await fileService.uploadFiles(currentPath, files);
-      loadSharedFiles();
+      loadFileItems();
       toast.success('Files uploaded successfully');
     } catch (error) {
       toast.error('Failed to upload files');
@@ -81,7 +85,7 @@ const SharedFilesPage: React.FC = () => {
 
   const breadcrumbParts = currentPath.split('/').filter(Boolean);
 
-  const getSyncStatusColor = (status: SharedFile['syncStatus']) => {
+  const getSyncStatusColor = (status: FileItem['syncStatus']) => {
     switch (status) {
       case 'synced': return styles.statusSynced;
       case 'pending': return styles.statusPending;
@@ -90,7 +94,7 @@ const SharedFilesPage: React.FC = () => {
     }
   };
 
-  const getSyncStatusText = (status: SharedFile['syncStatus']) => {
+  const getSyncStatusText = (status: FileItem['syncStatus']) => {
     switch (status) {
       case 'synced': return 'Synced';
       case 'pending': return 'Pending';
@@ -98,6 +102,7 @@ const SharedFilesPage: React.FC = () => {
       default: return 'Unknown';
     }
   };
+
 
   if (loading) {
     return (
@@ -108,8 +113,16 @@ const SharedFilesPage: React.FC = () => {
     );
   }
 
+    const sorted = files.sort((a, b) => {
+        if (a.type !== b.type) {
+            return a.type === 'directory' ? -1 : 1;
+        }
+    
+        return a.name.localeCompare(b.name);
+    });
+
   return (
-    <div className={styles.sharedFilesPage}>
+    <div className={styles.FileItemsPage}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Shared Files</h1>
@@ -166,7 +179,7 @@ const SharedFilesPage: React.FC = () => {
         </div>
         
         <div className={styles.fileList}>
-          {files.map((file) => (
+          {sorted.map((file) => (
             <div
               key={file.id}
               className={styles.fileItem}
@@ -185,7 +198,7 @@ const SharedFilesPage: React.FC = () => {
                 <h3 className={styles.fileName}>{file.name}</h3>
                 <div className={styles.fileMeta}>
                   <span className={styles.fileDate}>
-                    Uploaded: {formatDate(file.uploadedAt)}
+                    Uploaded: {formatDate(file.createdAt)}
                   </span>
                   {file.size && (
                     <>
@@ -193,11 +206,10 @@ const SharedFilesPage: React.FC = () => {
                       <span className={styles.fileSize}>
                         {formatFileSize(file.size)}
                       </span>
-                    </>
-                  )}
+                    </>)}
                   <span className={styles.metaSeparator}>•</span>
                   <span className={styles.uploadedBy}>
-                    by {file.uploadedBy}
+                    by {(file.uploader)}
                   </span>
                 </div>
               </div>
@@ -209,7 +221,7 @@ const SharedFilesPage: React.FC = () => {
                   </span>
                 </div>
                 
-                {file.sharedWith.length > 0 && (
+                {file.sharedWith && file.sharedWith.length > 0 && (
                   <div className={styles.sharedInfo}>
                     <FiServer className={styles.serverIcon} />
                     <span className={styles.sharedCount}>
