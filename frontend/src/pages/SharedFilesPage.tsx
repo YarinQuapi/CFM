@@ -8,7 +8,7 @@ import FileContextMenu from '../components/files/FileContextMenu';
 import { useAuthStore } from '../stores/authStore';
 import toast from 'react-hot-toast';
 import styles from './SharedFilesPage.module.css';
-import path from 'path';
+
 
 const SharedFilesPage: React.FC = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -31,7 +31,7 @@ const SharedFilesPage: React.FC = () => {
 
   const loadFileItems = async () => {
     try {
-      const data = await fileService.getSharedFiles(currentPath);
+      const data = await fileService.getSharedFiles();
       setFiles(data.filter(item => item.path === currentPath));
     } catch (error) {
       toast.error('Failed to load shared files');

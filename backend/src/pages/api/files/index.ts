@@ -63,7 +63,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 				await fs.rename(tempPath, newPath); // Move from temp to final location
 				res.status(200).json({ message: 'File uploaded successfully!' });
 			} catch (err) {
-				res.status(500).json({ error: 'Saving file failed' });
+				res.status(500).json({ error: err });
 			}
 
 
@@ -117,14 +117,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 
-async function listFiles(dirPath : string) {
-  try {
-    const files = await fs.readdir(path.join(uploadDir, dirPath));
-    return files;
-  } catch (err) {
-    console.error('Error listing files:', err);
-    return [];
-  }
-}
+// async function listFiles(dirPath : string) {
+//   try {
+//     const files = await fs.readdir(path.join(uploadDir, dirPath));
+//     return files;
+//   } catch (err) {
+//     console.error('Error listing files:', err);
+//     return [];
+//   }
+// }
 
 export default handler;
