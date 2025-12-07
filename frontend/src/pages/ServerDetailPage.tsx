@@ -202,7 +202,7 @@ const ServerDetailPage: React.FC = () => {
                 <h3 className={styles.fileName}>{file.name}</h3>
                 <div className={styles.fileMeta}>
                   <span className={styles.fileDate}>
-                    Modified: {formatDate(file.modifiedAt)}
+                    Modified: {formatDate(file.createdAt)}
                   </span>
                   {file.size && (
                     <>

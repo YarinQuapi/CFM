@@ -1,41 +1,35 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  FiHome, 
-  FiServer, 
-  FiFolder, 
-  FiUsers, 
-  FiLogOut 
-} from 'react-icons/fi';
-import { useAuthStore } from '../../stores/authStore';
-import styles from './Sidebar.module.css';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import { FiHome, FiServer, FiFolder, FiUsers, FiLogOut } from "react-icons/fi";
+import { useAuthStore } from "../../stores/authStore";
+import styles from "./Sidebar.module.css";
 
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuthStore();
 
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: FiHome },
-    { path: '/servers', label: 'Servers', icon: FiServer },
-    { path: '/shared-files', label: 'Shared Files', icon: FiFolder },
-    ...(user?.role  === "2" ? [
-      { path: '/users', label: 'User Management', icon: FiUsers }
-    ] : []),
+    { path: "/dashboard", label: "Dashboard", icon: FiHome },
+    { path: "/servers", label: "Servers", icon: FiServer },
+    { path: "/shared-files", label: "Shared Files", icon: FiFolder },
+    ...(user?.role == "2"
+      ? [{ path: "/users", label: "User Management", icon: FiUsers }]
+      : []),
   ];
 
   return (
     <div className={styles.sidebar}>
       <div className={styles.header}>
-        <h1 className={styles.title}>C  F  M</h1>
+        <h1 className={styles.title}>C F M</h1>
         <p className={styles.subtitle}>Controlled File Management</p>
       </div>
-      
+
       <nav className={styles.nav}>
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `${styles.navLink} ${isActive ? styles.active : ''}`
+              `${styles.navLink} ${isActive ? styles.active : ""}`
             }
           >
             <item.icon className={styles.navIcon} />
@@ -54,11 +48,7 @@ const Sidebar: React.FC = () => {
             <span className={styles.userRole}>{user?.role}</span>
           </div>
         </div>
-        <button
-          onClick={logout}
-          className={styles.logoutButton}
-          title="Logout"
-        >
+        <button onClick={logout} className={styles.logoutButton} title="Logout">
           <FiLogOut className={styles.logoutIcon} />
         </button>
       </div>

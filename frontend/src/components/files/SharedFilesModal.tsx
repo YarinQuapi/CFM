@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FiX, FiFolder, FiFile, FiCheck } from 'react-icons/fi';
-import { SharedFile } from '../../types';
-import { fileService } from '../../services/fileService';
-import toast from 'react-hot-toast';
-import styles from './SharedFilesModal.module.css';
+import React, { useState, useEffect } from "react";
+import { FiX, FiFolder, FiFile, FiCheck } from "react-icons/fi";
+import { fileService } from "../../services/fileService";
+import toast from "react-hot-toast";
+import styles from "./SharedFilesModal.module.css";
+import { FileItem } from "../../types";
 
 interface SharedFilesModalProps {
   serverId: string;
@@ -11,12 +11,16 @@ interface SharedFilesModalProps {
   onAdd: (selectedFiles: string[]) => Promise<void>;
 }
 
-const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, onAdd }) => {
-  const [files, setFiles] = useState<SharedFile[]>([]);
+const SharedFilesModal: React.FC<SharedFilesModalProps> = ({
+  serverId,
+  onClose,
+  onAdd,
+}) => {
+  const [files, setFiles] = useState<FileItem[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     loadSharedFiles();
@@ -24,13 +28,15 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
 
   const loadSharedFiles = async () => {
     try {
-      const data = await fileService.getSharedFiles('/');
+      const data = await fileService.getSharedFiles();
       // Filter out files already shared with this server
-      const availableFiles = data.filter(file => !file.sharedWith.includes(serverId));
+      const availableFiles = data.filter(
+        (file) => !file.sharedWith?.includes(serverId)
+      );
       setFiles(availableFiles);
     } catch (error) {
-      toast.error('Failed to load shared files');
-      console.error('Failed to load shared files:', error);
+      toast.error("Failed to load shared files");
+      console.error("Failed to load shared files:", error);
     } finally {
       setLoading(false);
     }
@@ -51,20 +57,20 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
     if (selectedFiles.size === filteredFiles.length) {
       setSelectedFiles(new Set());
     } else {
-      setSelectedFiles(new Set(filteredFiles.map(f => f.id)));
+      setSelectedFiles(new Set(filteredFiles.map((f) => f.id)));
     }
   };
 
   const handleAddFiles = async () => {
     if (selectedFiles.size === 0) return;
-    
+
     setSaving(true);
-    
+
     try {
       await onAdd(Array.from(selectedFiles));
       onClose();
     } catch (error) {
-      console.error('Failed to add shared files:', error);
+      console.error("Failed to add shared files:", error);
     } finally {
       setSaving(false);
     }
@@ -72,22 +78,23 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
 
   const getFilteredFiles = () => {
     if (!searchTerm) return files;
-    
-    return files.filter(file =>
+
+    return files.filter((file) =>
       file.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const filteredFiles = getFilteredFiles();
-  const allSelected = filteredFiles.length > 0 && selectedFiles.size === filteredFiles.length;
+  const allSelected =
+    filteredFiles.length > 0 && selectedFiles.size === filteredFiles.length;
 
   if (loading) {
     return (
@@ -131,7 +138,7 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
                 onClick={handleSelectAll}
                 className={`btn-base btn-secondary ${styles.selectAllButton}`}
               >
-                {allSelected ? 'Deselect All' : 'Select All'}
+                {allSelected ? "Deselect All" : "Select All"}
               </button>
             )}
           </div>
@@ -142,13 +149,12 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
                 <FiFolder />
               </div>
               <h3 className={styles.emptyTitle}>
-                {searchTerm ? 'No files found' : 'No shared files available'}
+                {searchTerm ? "No files found" : "No shared files available"}
               </h3>
               <p className={styles.emptyDescription}>
-                {searchTerm 
-                  ? 'Try adjusting your search terms'
-                  : 'All shared files are already added to this server'
-                }
+                {searchTerm
+                  ? "Try adjusting your search terms"
+                  : "All shared files are already added to this server"}
               </p>
             </div>
           ) : (
@@ -156,7 +162,9 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
               {filteredFiles.map((file) => (
                 <div
                   key={file.id}
-                  className={`${styles.fileItem} ${selectedFiles.has(file.id) ? styles.selected : ''}`}
+                  className={`${styles.fileItem} ${
+                    selectedFiles.has(file.id) ? styles.selected : ""
+                  }`}
                   onClick={() => handleFileToggle(file.id)}
                 >
                   <div className={styles.checkbox}>
@@ -172,7 +180,7 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
                   </div>
 
                   <div className={styles.fileIcon}>
-                    {file.type === 'directory' ? (
+                    {file.type === "directory" ? (
                       <FiFolder className={styles.folderIcon} />
                     ) : (
                       <FiFile className={styles.fileItemIcon} />
@@ -183,7 +191,7 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
                     <h3 className={styles.fileName}>{file.name}</h3>
                     <div className={styles.fileMeta}>
                       <span className={styles.fileType}>
-                        {file.type === 'directory' ? 'Directory' : 'File'}
+                        {file.type === "directory" ? "Directory" : "File"}
                       </span>
                       {file.size && (
                         <>
@@ -195,14 +203,15 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
                       )}
                       <span className={styles.metaSeparator}>•</span>
                       <span className={styles.uploadDate}>
-                        {new Date(file.uploadedAt).toLocaleDateString()}
+                        {new Date(file.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
 
                   <div className={styles.sharedCount}>
                     <span className={styles.sharedText}>
-                      Shared with {file.sharedWith.length} server{file.sharedWith.length !== 1 ? 's' : ''}
+                      Shared with {file.sharedWith?.length} server
+                      {file.sharedWith?.length !== 1 ? "s" : ""}
                     </span>
                   </div>
                 </div>
@@ -221,7 +230,9 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
           </button>
           <button
             onClick={handleAddFiles}
-            className={`btn-base btn-primary ${saving ? styles.loadingButton : ''}`}
+            className={`btn-base btn-primary ${
+              saving ? styles.loadingButton : ""
+            }`}
             disabled={selectedFiles.size === 0 || saving}
           >
             {saving ? (
@@ -230,7 +241,9 @@ const SharedFilesModal: React.FC<SharedFilesModalProps> = ({ serverId, onClose, 
                 Adding...
               </>
             ) : (
-              `Add ${selectedFiles.size} File${selectedFiles.size !== 1 ? 's' : ''}`
+              `Add ${selectedFiles.size} File${
+                selectedFiles.size !== 1 ? "s" : ""
+              }`
             )}
           </button>
         </div>
